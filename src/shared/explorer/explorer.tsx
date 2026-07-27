@@ -9,7 +9,7 @@ const LEGEND = [
 /** The left column: this application's own source, at full height. */
 export function Explorer() {
   return (
-    <aside className="flex min-h-0 flex-col border-e bg-card/40">
+    <aside className="flex min-h-0 flex-col border-e bg-card/40 col-span-3">
       <div className="flex shrink-0 items-center gap-3 px-4 py-2.5 text-[11px] text-muted-foreground">
         {LEGEND.map((item) => (
           <span key={item.label} className="flex items-center gap-1.5" title={item.hint}>

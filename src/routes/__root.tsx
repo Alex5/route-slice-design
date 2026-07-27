@@ -22,12 +22,12 @@ function RootLayout() {
 
         {/* Source on the left, the running app in the middle, and the note about
             whatever is outlined on the right — next to the thing it describes. */}
-        <div className="grid min-h-0 flex-1 grid-cols-[minmax(260px,320px)_1fr] lg:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,340px)]">
+        <div className="grid min-h-0 flex-1 grid-cols-12">
           <Explorer />
-          <main className="min-h-0 p-4">
+          <main className="min-h-0 p-4 col-span-6">
             <Preview />
           </main>
-          <div className="hidden min-h-0 flex-col lg:flex">
+          <div className="hidden min-h-0 flex-col lg:flex col-span-3">
             <NotePanel />
           </div>
         </div>
@@ -38,6 +38,7 @@ function RootLayout() {
 
 function Preview() {
   const { pathname, search } = useLocation();
+
   const query = new URLSearchParams(search as Record<string, string>).toString();
 
   return (
