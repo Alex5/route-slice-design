@@ -1,6 +1,8 @@
-import { CornerDownRight, Lightbulb } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Code2, CornerDownRight, Lightbulb } from "lucide-react";
 
 import { useExplorer } from "#/shared/explorer/explorer.context.tsx";
+import { hasSource } from "#/shared/lib/source-code.ts";
 import { sourceNotes } from "#/shared/lib/source-notes.ts";
 import { nodeByPath, type Layer } from "#/shared/lib/source-tree.ts";
 import { cn } from "#/shared/lib/utils.ts";
@@ -26,6 +28,7 @@ const LAYER_DOT: Record<Layer, string> = {
  */
 export function NotePanel() {
   const { activePath, select, hover } = useExplorer();
+  const navigate = useNavigate();
 
   const node = activePath ? nodeByPath.get(activePath) : null;
   const note = activePath ? sourceNotes[activePath] : undefined;
@@ -58,6 +61,19 @@ export function NotePanel() {
           <CornerDownRight className="size-3" />
           {node.route}
         </div>
+      )}
+
+      {hasSource(node.id) && (
+        <button
+          type="button"
+          onClick={() =>
+            navigate({ to: ".", search: (previous) => ({ ...previous, source: node.id }) })
+          }
+          className="flex w-full items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs transition-colors hover:bg-accent"
+        >
+          <Code2 className="size-3.5" />
+          Read the source
+        </button>
       )}
 
       {note?.note && (

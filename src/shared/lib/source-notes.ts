@@ -274,6 +274,74 @@ export const sourceNotes: Record<string, SourceNote> = {
     ],
   },
 
+  /* ── /board — state that is neither on the server nor in the URL ──────── */
+
+  "src/routes/board": {
+    doc: "A scratch board. Nothing here is saved and nothing is addressable beyond the screen itself, which is what makes it a store case rather than a URL case.",
+    use: "Reach for this shape when state is complex, local and long-lived within one screen.",
+    rule: "§ 8",
+  },
+  "src/routes/board/board.store.ts": {
+    role: "store",
+    note: "The store sits beside the route, not in shared.",
+    doc: "Zustand for complex local state, colocated because nothing outside /board has any use for it. Cards are grouped by column so a move replaces exactly two arrays and the rest keep their identity. Server data in here would be a mistake — that belongs to the query layer.",
+    use: "Named .ts, not .tsx: the suffix carries the role, the extension still has to tell the truth about the contents.",
+    rule: "§ 8 · § 3",
+  },
+  "src/routes/board/index.tsx": {
+    role: "page",
+    doc: "Composes the columns and owns nothing else. The page never holds the cards; each column subscribes for itself.",
+    use: "Compare with /projects: same page shape, different origin of state.",
+  },
+  "src/routes/board/-components": {
+    doc: "Pieces of the board, unusable anywhere else.",
+    use: "Same rule as everywhere: the dash keeps the folder out of routing.",
+    rule: "§ 3",
+  },
+  "src/routes/board/-components/board-column": {
+    doc: "One column of the board.",
+    use: "It reads the store directly, so adding a column costs one line in the page.",
+  },
+  "src/routes/board/-components/board-column/board-column.tsx": {
+    doc: "Subscribes to its own column instead of taking cards through props. A selector that built a new array on every call would loop forever under zustand v5 — the shape of the store is what makes the subscription cheap and stable.",
+    use: "This is the payoff of a store over context: precise subscriptions without splitting providers.",
+    rule: "§ 8",
+  },
+
+  /* ── /wizard — state shared by one subtree ────────────────────────────── */
+
+  "src/routes/wizard": {
+    doc: "A three-step draft. The steps must agree on one object, but that object dies with the screen.",
+    use: "Reach for this shape when several components share state and none of them outlive the screen.",
+    rule: "§ 8",
+  },
+  "src/routes/wizard/wizard.context.tsx": {
+    role: "context",
+    note: "Native context, deliberately not a store.",
+    doc: "A store would outlive the screen and a prop chain would thread through every step. Context is the size of the problem: scoped to a subtree, gone when it unmounts.",
+    use: "Named .tsx because the provider is a component — the role is in the suffix, the extension describes the contents.",
+    rule: "§ 8 · § 3",
+  },
+  "src/routes/wizard/index.tsx": {
+    role: "page",
+    doc: "Mounts the provider and renders the current step. The step index is never passed down.",
+    use: "Note where the provider sits: inside the page, not in app/providers, because nothing above this route needs it.",
+    rule: "§ 2",
+  },
+  "src/routes/wizard/-components": {
+    doc: "Pieces of the wizard, unusable anywhere else.",
+    rule: "§ 3",
+  },
+  "src/routes/wizard/-components/wizard-steps": {
+    doc: "The step indicator.",
+    use: "It reads context rather than props, which is why the page stays a composition.",
+  },
+  "src/routes/wizard/-components/wizard-steps/wizard-steps.tsx": {
+    doc: "Reads the step from context and writes it back. The page above passes nothing.",
+    use: "Compare with board-column: both avoid prop drilling, at two different scopes.",
+    rule: "§ 8",
+  },
+
   /* ── shared ───────────────────────────────────────────────────────────── */
 
   "src/shared": {
@@ -310,6 +378,10 @@ export const sourceNotes: Record<string, SourceNote> = {
     use: "Use it anywhere a component takes a className prop.",
   },
 
+  "src/shared/lib/source-code.ts": {
+    doc: "The text of every file, loaded on demand through Vite's ?raw. What the reader sees is what is on disk, not a copy pasted into a document.",
+    use: "A glob never includes the file it is written in, so this one imports itself directly to stay readable.",
+  },
   "src/shared/explorer": {
     doc: "The explanatory overlay: the tree, the note panel, and the shared idea of which file is being pointed at.",
     use: "This is the only part of the app that is about the app. Everything else is an ordinary task tracker.",
@@ -346,6 +418,15 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Takes a path and nothing else, and the tree reads the same filesystem — so a label and the tree cannot disagree.",
     use: "Wrap a new component in a <Boundary> pointing at its path and it joins the map with no registration step.",
     rule: "§ 5",
+  },
+  [`${UI}/source-view`]: {
+    doc: "Renders a file as text with line numbers.",
+    use: "Open it from the note panel, or link straight to it — the file being read is a search param.",
+    rule: "§ 8",
+  },
+  [`${UI}/source-view/source-view.tsx`]: {
+    doc: "Loads a file on demand and prints it. No highlighting on purpose: the point is what the code says, not how it looks.",
+    use: "Reading a file is addressable, so a review comment can link to the exact source the reader should see.",
   },
   [`${UI}/section`]: {
     doc: "Titled container used by both write pages.",

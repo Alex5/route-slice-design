@@ -1,4 +1,7 @@
+import { Link } from "@tanstack/react-router";
+
 import pkg from "#package";
+import { cn } from "#/shared/lib/utils.ts";
 
 /**
  * Versions come from package.json rather than from a list someone remembers to
@@ -14,6 +17,19 @@ function version(name: string) {
   const [major, minor] = raw.replace(/^[^\d]*/, "").split(".");
   return minor ? `${major}.${minor}` : major;
 }
+
+/**
+ * Each entry is a route branch demonstrating a different answer to "where does
+ * this state belong" — the taxonomy in § 8, one screen per row.
+ */
+const SCENARIOS = [
+  { to: "/projects", label: "Server + URL" },
+  { to: "/board", label: "Store" },
+  { to: "/wizard", label: "Context" },
+] as const;
+
+const scenarioClass =
+  "rounded-md px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground";
 
 const STACK = [
   { label: "React", package: "react" },
@@ -32,9 +48,18 @@ export function SiteHeader() {
         route <span className="text-layer-routes">slice</span> design
       </span>
 
-      <p className="hidden border-s ps-4 text-xs text-muted-foreground md:block">
-        a task tracker with its own structure showing
-      </p>
+      <nav className="hidden items-center gap-0.5 rounded-lg border border-white/10 p-0.5 md:flex">
+        {SCENARIOS.map((scenario) => (
+          <Link
+            key={scenario.to}
+            to={scenario.to}
+            className={scenarioClass}
+            activeProps={{ className: cn(scenarioClass, "bg-secondary text-foreground") }}
+          >
+            {scenario.label}
+          </Link>
+        ))}
+      </nav>
 
       <div className="ms-auto flex items-center gap-1.5">
         <div className="hidden items-center gap-1.5 lg:flex">

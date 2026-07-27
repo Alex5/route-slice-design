@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Columns2 } from "lucide-react";
 
 import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
@@ -6,6 +6,7 @@ import { WithProviders } from "#/app/providers/with-providers.tsx";
 import { Explorer } from "#/shared/explorer/explorer.tsx";
 import { NotePanel } from "#/shared/explorer/note-panel.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
+import { SourceView } from "#/shared/ui/source-view/source-view.tsx";
 
 const FILE = "src/routes/__root.tsx";
 
@@ -15,6 +16,8 @@ const FILE = "src/routes/__root.tsx";
  * expansion state as you navigate.
  */
 function RootLayout() {
+  const { source } = Route.useSearch();
+
   return (
     <WithProviders>
       <div className="flex h-dvh flex-col bg-background">
@@ -24,8 +27,8 @@ function RootLayout() {
             whatever is outlined on the right — next to the thing it describes. */}
         <div className="grid min-h-0 flex-1 grid-cols-12">
           <Explorer />
-          <main className="min-h-0 p-4 col-span-5">
-            <Preview />
+          <main className="min-h-0 p-4 col-span-6">
+            <Preview source={source} />
           </main>
           <div className="hidden min-h-0 flex-col lg:flex col-span-3">
             <NotePanel />
@@ -36,8 +39,9 @@ function RootLayout() {
   );
 }
 
-function Preview() {
+function Preview({ source }: { source?: string }) {
   const { pathname, search } = useLocation();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(search as Record<string, string>).toString();
 
@@ -62,15 +66,47 @@ function Preview() {
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8">
-        <Boundary file={FILE} label="__root.tsx">
-          <Outlet />
-        </Boundary>
-      </div>
+      {source ? (
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex h-9 shrink-0 items-center gap-3 border-b bg-card/40 px-4">
+            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
+              {source}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: ".",
+                  search: (previous: Record<string, unknown>) => ({
+                    ...previous,
+                    source: undefined,
+                  }),
+                })
+              }
+              className="shrink-0 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Back to the app
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-auto">
+            <SourceView path={source} />
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-8">
+          <Boundary file={FILE} label="__root.tsx">
+            <Outlet />
+          </Boundary>
+        </div>
+      )}
     </div>
   );
 }
 
 export const Route = createRootRoute({
+  // A file being read is part of the address, so the view can be linked to —
+  // the same rule the task filter follows.
+  validateSearch: (search: Record<string, unknown>): { source?: string } =>
+    typeof search.source === "string" ? { source: search.source } : {},
   component: RootLayout,
 });

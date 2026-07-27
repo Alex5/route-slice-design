@@ -88,9 +88,10 @@ function TreeNode({ node, indexPath }: { node: SourceNode; indexPath: number[] }
       <TreeViewItem {...rowProps}>
         <span className="size-4 shrink-0" />
         <NodeIcon node={node} expanded={false} />
-        <TreeViewItemText>{node.name}</TreeViewItemText>
+        {/* The filename never shrinks; the URL badge gives way instead. */}
+        <TreeViewItemText className="shrink-0">{node.name}</TreeViewItemText>
         {node.route && (
-          <span className="ms-auto shrink-0 font-mono text-[10px] text-muted-foreground">
+          <span className="ms-auto min-w-0 truncate ps-2 font-mono text-[10px] text-muted-foreground">
             {node.route}
           </span>
         )}

@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompareRouteImport } from './routes/compare'
+import { Route as BoardIndexRouteImport } from './routes/board/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as ProjectsProjectIdRouteRouteImport } from './routes/projects/$projectId/route'
+import { Route as WizardIndexRouteImport } from './routes/wizard/index'
 import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects/$projectId/index'
 import { Route as ProjectsProjectIdTasksIndexRouteImport } from './routes/projects/$projectId/tasks/index'
 import { Route as ProjectsProjectIdTasksTaskIdIndexRouteImport } from './routes/projects/$projectId/tasks/$taskId/index'
@@ -29,6 +31,11 @@ const CompareRoute = CompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoardIndexRoute = BoardIndexRouteImport.update({
+  id: '/board/',
+  path: '/board/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
@@ -37,6 +44,11 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
 const ProjectsProjectIdRouteRoute = ProjectsProjectIdRouteRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WizardIndexRoute = WizardIndexRouteImport.update({
+  id: '/wizard/',
+  path: '/wizard/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
@@ -73,7 +85,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/projects/$projectId': typeof ProjectsProjectIdRouteRouteWithChildren
+  '/board/': typeof BoardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/wizard/': typeof WizardIndexRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
   '/projects/$projectId/tasks/': typeof ProjectsProjectIdTasksIndexRoute
   '/projects/$projectId/tasks/$taskId/': typeof ProjectsProjectIdTasksTaskIdIndexRoute
@@ -83,7 +97,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
+  '/board': typeof BoardIndexRoute
   '/projects': typeof ProjectsIndexRoute
+  '/wizard': typeof WizardIndexRoute
   '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksIndexRoute
   '/projects/$projectId/tasks/$taskId': typeof ProjectsProjectIdTasksTaskIdIndexRoute
@@ -95,7 +111,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/projects/$projectId': typeof ProjectsProjectIdRouteRouteWithChildren
+  '/board/': typeof BoardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/wizard/': typeof WizardIndexRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
   '/projects/$projectId/tasks/': typeof ProjectsProjectIdTasksIndexRoute
   '/projects/$projectId/tasks/$taskId/': typeof ProjectsProjectIdTasksTaskIdIndexRoute
@@ -108,7 +126,9 @@ export interface FileRouteTypes {
     | '/'
     | '/compare'
     | '/projects/$projectId'
+    | '/board/'
     | '/projects/'
+    | '/wizard/'
     | '/projects/$projectId/'
     | '/projects/$projectId/tasks/'
     | '/projects/$projectId/tasks/$taskId/'
@@ -118,7 +138,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/compare'
+    | '/board'
     | '/projects'
+    | '/wizard'
     | '/projects/$projectId'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId/tasks/$taskId'
@@ -129,7 +151,9 @@ export interface FileRouteTypes {
     | '/'
     | '/compare'
     | '/projects/$projectId'
+    | '/board/'
     | '/projects/'
+    | '/wizard/'
     | '/projects/$projectId/'
     | '/projects/$projectId/tasks/'
     | '/projects/$projectId/tasks/$taskId/'
@@ -141,7 +165,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompareRoute: typeof CompareRoute
   ProjectsProjectIdRouteRoute: typeof ProjectsProjectIdRouteRouteWithChildren
+  BoardIndexRoute: typeof BoardIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
+  WizardIndexRoute: typeof WizardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/board/': {
+      id: '/board/'
+      path: '/board'
+      fullPath: '/board/'
+      preLoaderRoute: typeof BoardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/': {
       id: '/projects/'
       path: '/projects'
@@ -172,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
       preLoaderRoute: typeof ProjectsProjectIdRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wizard/': {
+      id: '/wizard/'
+      path: '/wizard'
+      fullPath: '/wizard/'
+      preLoaderRoute: typeof WizardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId/': {
@@ -240,7 +280,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompareRoute: CompareRoute,
   ProjectsProjectIdRouteRoute: ProjectsProjectIdRouteRouteWithChildren,
+  BoardIndexRoute: BoardIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
+  WizardIndexRoute: WizardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
