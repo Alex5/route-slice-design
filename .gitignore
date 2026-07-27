@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Router plugin scratch space
+.tanstack/
+
+# Editors
+.idea/
+.junie/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Local tool state
+.claude/settings.local.json

@@ -1,0 +1,37 @@
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+
+import { TaskFormFields } from "#/routes/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
+import { findTask } from "#/shared/api/mock-data.ts";
+import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
+import { FormActions } from "#/shared/ui/form-actions/form-actions.tsx";
+import { Section } from "#/shared/ui/section/section.tsx";
+
+const FILE = "src/routes/projects/$projectId/tasks/$taskId/edit/index.tsx";
+
+function EditTaskPage() {
+  const { projectId, taskId } = Route.useParams();
+  const task = Route.useLoaderData();
+  const navigate = useNavigate();
+
+  const close = () =>
+    navigate({ to: "/projects/$projectId/tasks/$taskId", params: { projectId, taskId } });
+
+  return (
+    <Boundary file={FILE} label="$taskId/edit/index.tsx" className="space-y-6">
+      <h2 className="text-lg font-semibold tracking-tight">Edit task</h2>
+      <Section title="Details">
+        <TaskFormFields task={task} />
+      </Section>
+      <FormActions submitLabel="Save changes" onCancel={close} onSubmit={close} />
+    </Boundary>
+  );
+}
+
+export const Route = createFileRoute("/projects/$projectId/tasks/$taskId/edit/")({
+  loader: ({ params }) => {
+    const task = findTask(params.taskId);
+    if (!task) throw notFound();
+    return task;
+  },
+  component: EditTaskPage,
+});
