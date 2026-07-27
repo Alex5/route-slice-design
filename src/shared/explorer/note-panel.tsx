@@ -94,7 +94,10 @@ export function NotePanel() {
                 className="flex w-full items-center gap-1.5 rounded px-1 py-0.5 text-start text-[11px] transition-colors hover:bg-accent"
               >
                 <span
-                  className={cn("size-1.5 shrink-0 rounded-full bg-current", LAYER_DOT[block.layer])}
+                  className={cn(
+                    "size-1.5 shrink-0 rounded-full bg-current",
+                    LAYER_DOT[block.layer],
+                  )}
                 />
                 <span className="truncate font-mono text-muted-foreground">{block.name}</span>
                 <span className="ms-auto shrink-0 text-[10px] text-muted-foreground/70">
@@ -107,9 +110,7 @@ export function NotePanel() {
       )}
 
       {!note && (
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          No note for this file yet.
-        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">No note for this file yet.</p>
       )}
     </aside>
   );

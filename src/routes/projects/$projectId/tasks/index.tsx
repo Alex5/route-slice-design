@@ -35,9 +35,7 @@ export const Route = createFileRoute("/projects/$projectId/tasks/")({
   // The filter is part of the URL, so it is validated where the URL is defined.
   validateSearch: (search: Record<string, unknown>): { status?: TaskStatus } => {
     const status = search.status;
-    return TASK_STATUSES.includes(status as TaskStatus)
-      ? { status: status as TaskStatus }
-      : {};
+    return TASK_STATUSES.includes(status as TaskStatus) ? { status: status as TaskStatus } : {};
   },
   component: TasksPage,
 });

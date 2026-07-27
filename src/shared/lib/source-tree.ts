@@ -102,9 +102,7 @@ const SELF = "src/shared/lib/source-tree.ts";
 
 const files = [
   ...new Set([
-    ...Object.keys(import.meta.glob("/src/**/*.{ts,tsx,css}")).map((key) =>
-      key.replace(/^\//, ""),
-    ),
+    ...Object.keys(import.meta.glob("/src/**/*.{ts,tsx,css}")).map((key) => key.replace(/^\//, "")),
     SELF,
   ]),
 ].filter((path) => !IGNORED.includes(path));

@@ -41,9 +41,7 @@ const editShared = markShared(editLines, addLines);
 
 const meaningful = (lines: string[]) => lines.filter((line) => line.trim()).length;
 const sharedCount = addShared.filter(Boolean).length + editShared.filter(Boolean).length;
-const similarity = Math.round(
-  (sharedCount / (meaningful(addLines) + meaningful(editLines))) * 100,
-);
+const similarity = Math.round((sharedCount / (meaningful(addLines) + meaningful(editLines))) * 100);
 
 function SourceColumn({
   file,
@@ -99,7 +97,12 @@ function ComparePage() {
 
       <Boundary file={FILE} label="compare.tsx">
         <div className="grid gap-6 lg:grid-cols-2">
-          <SourceColumn file={ADD} label="tasks/new/index.tsx" lines={addLines} shared={addShared} />
+          <SourceColumn
+            file={ADD}
+            label="tasks/new/index.tsx"
+            lines={addLines}
+            shared={addShared}
+          />
           <SourceColumn
             file={EDIT}
             label="$taskId/edit/index.tsx"

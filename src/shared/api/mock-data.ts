@@ -33,9 +33,24 @@ export const projects: Project[] = [
 ];
 
 export const tasks: Task[] = [
-  { id: "TF-142", title: "Task table loses its filter on reload", status: "in_progress", assignee: "A. Ilin" },
-  { id: "TF-138", title: "Create dialog does not reset when closed", status: "open", assignee: "M. Sokolova" },
-  { id: "TF-131", title: "Pull types from the new /tasks contract", status: "done", assignee: "D. Kravtsov" },
+  {
+    id: "TF-142",
+    title: "Task table loses its filter on reload",
+    status: "in_progress",
+    assignee: "A. Ilin",
+  },
+  {
+    id: "TF-138",
+    title: "Create dialog does not reset when closed",
+    status: "open",
+    assignee: "M. Sokolova",
+  },
+  {
+    id: "TF-131",
+    title: "Pull types from the new /tasks contract",
+    status: "done",
+    assignee: "D. Kravtsov",
+  },
   { id: "TF-127", title: "A 500 response shows no toast", status: "open", assignee: "A. Ilin" },
 ];
 
