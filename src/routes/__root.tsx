@@ -24,7 +24,7 @@ function RootLayout() {
             whatever is outlined on the right — next to the thing it describes. */}
         <div className="grid min-h-0 flex-1 grid-cols-12">
           <Explorer />
-          <main className="min-h-0 p-4 col-span-6">
+          <main className="min-h-0 p-4 col-span-5">
             <Preview />
           </main>
           <div className="hidden min-h-0 flex-col lg:flex col-span-3">
