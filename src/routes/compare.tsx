@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { cn } from "#/shared/lib/utils.ts";
+import { Code } from "#/shared/ui/code/code.tsx";
 // The two twins are imported as text, not as modules: this page reads them the
 // way a reader would, and takes on no dependency on what they render.
 import addSource from "#/routes/projects/$projectId/tasks/new/index.tsx?raw";
@@ -46,32 +46,23 @@ const similarity = Math.round((sharedCount / (meaningful(addLines) + meaningful(
 function SourceColumn({
   file,
   label,
-  lines,
+  source,
   shared,
 }: {
   file: string;
   label: string;
-  lines: string[];
+  source: string;
   shared: boolean[];
 }) {
   return (
     <Boundary file={file} label={label} className="min-w-0">
-      <pre className="overflow-x-auto text-[11px] leading-5">
-        <code>
-          {lines.map((line, index) => (
-            <div
-              // Line numbers are stable identity here; the file does not reorder.
-              key={`${index}-${line}`}
-              className={cn(
-                "whitespace-pre px-2",
-                shared[index] ? "bg-layer-shared/10 text-foreground" : "text-muted-foreground",
-              )}
-            >
-              {line || " "}
-            </div>
-          ))}
-        </code>
-      </pre>
+      <Code
+        code={source}
+        path={file}
+        // Shiki counts lines from one; the marks are indexed from zero.
+        isShared={(line) => shared[line - 1] ?? false}
+        className="numbered !p-0"
+      />
     </Boundary>
   );
 }
@@ -100,13 +91,13 @@ function ComparePage() {
           <SourceColumn
             file={ADD}
             label="tasks/new/index.tsx"
-            lines={addLines}
+            source={addSource.trimEnd()}
             shared={addShared}
           />
           <SourceColumn
             file={EDIT}
             label="$taskId/edit/index.tsx"
-            lines={editLines}
+            source={editSource.trimEnd()}
             shared={editShared}
           />
         </div>

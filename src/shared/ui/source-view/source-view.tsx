@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
 
 import { loadSource } from "#/shared/lib/source-code.ts";
+import { Code } from "#/shared/ui/code/code.tsx";
 
-/**
- * Shows a file exactly as it is on disk. Line numbers are the identity here —
- * the file is not reordered, so an index is a stable key.
- */
+/** Shows a file exactly as it is on disk. */
 export function SourceView({ path }: { path: string }) {
-  const [lines, setLines] = useState<string[] | null>(null);
+  const [code, setCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    setLines(null);
+    setCode(null);
     setError(null);
 
     loadSource(path)
       .then((text) => {
-        if (!cancelled) setLines(text.trimEnd().split("\n"));
+        if (!cancelled) setCode(text.trimEnd());
       })
       .catch((cause: Error) => {
         if (!cancelled) setError(cause.message);
@@ -29,26 +27,8 @@ export function SourceView({ path }: { path: string }) {
     };
   }, [path]);
 
-  if (error) {
-    return <div className="p-4 text-xs text-destructive">{error}</div>;
-  }
+  if (error) return <div className="p-4 text-xs text-destructive">{error}</div>;
+  if (!code) return <div className="p-4 text-xs text-muted-foreground">Reading {path}…</div>;
 
-  if (!lines) {
-    return <div className="p-4 text-xs text-muted-foreground">Reading {path}…</div>;
-  }
-
-  return (
-    <pre className="overflow-x-auto p-4 text-[11px] leading-5">
-      <code>
-        {lines.map((line, index) => (
-          <div key={`${index}-${line}`} className="flex whitespace-pre">
-            <span className="w-8 shrink-0 select-none pe-3 text-end text-muted-foreground/40">
-              {index + 1}
-            </span>
-            <span>{line || " "}</span>
-          </div>
-        ))}
-      </code>
-    </pre>
-  );
+  return <Code code={code} path={path} className="numbered" />;
 }

@@ -37,6 +37,7 @@ const STACK = [
   { label: "Vite", package: "vite" },
   { label: "Tailwind", package: "tailwindcss" },
   { label: "Ark UI", package: "@ark-ui/react" },
+  { label: "Shiki", package: "shiki" },
 ];
 
 export function SiteHeader() {

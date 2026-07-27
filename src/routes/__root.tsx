@@ -103,10 +103,32 @@ function Preview({ source }: { source?: string }) {
   );
 }
 
+/**
+ * Reached by typing a URL nothing answers — including the tempting
+ * `/board/board.store`, which looks like a route but is a role file.
+ */
+function NotFound() {
+  return (
+    <div className="space-y-3 rounded-lg border border-dashed border-white/10 p-6">
+      <h2 className="text-sm font-semibold">Nothing answers this URL</h2>
+      <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
+        Only folders under <code>routes/</code> become addresses. A folder starting with a dash is
+        excluded, and a file carrying a role in a dot suffix — <code>board.store.ts</code>,{" "}
+        <code>wizard.context.tsx</code> — is not a route either. The tree on the left prints a URL
+        beside the files that have one.
+      </p>
+      <Link to="/projects" className="inline-block text-xs text-layer-routes hover:underline">
+        Back to /projects
+      </Link>
+    </div>
+  );
+}
+
 export const Route = createRootRoute({
   // A file being read is part of the address, so the view can be linked to —
   // the same rule the task filter follows.
   validateSearch: (search: Record<string, unknown>): { source?: string } =>
     typeof search.source === "string" ? { source: search.source } : {},
   component: RootLayout,
+  notFoundComponent: NotFound,
 });

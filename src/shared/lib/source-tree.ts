@@ -33,18 +33,29 @@ function layerOf(path: string): Layer {
 }
 
 /**
- * Derives the URL a route file answers on, mirroring the rules the router
- * itself uses: `index`/`route` drop out, `-`-prefixed folders are not routes.
+ * Derives the URL a route file answers on, mirroring the rules the generator
+ * itself applies:
+ *
+ * - `-`-prefixed folders are excluded from routing;
+ * - `__root` is the shell and answers no URL of its own;
+ * - `index` and `route` drop out of the path;
+ * - a role file keeps its role in a dot suffix (`board.store.ts`,
+ *   `wizard.context.tsx`), and a dotted name is not a route.
+ *
+ * The last rule is the one worth stating out loud: without it this function
+ * would advertise `/board/board.store`, a URL the router has never heard of.
  */
 export function routeForPath(path: string): string | null {
   if (!path.startsWith("src/routes/")) return null;
 
   const relative = path.slice("src/routes/".length);
   const segments = relative.replace(/\.tsx?$/, "").split("/");
+  const name = segments.at(-1) ?? "";
 
   if (segments.some((segment) => segment.startsWith("-"))) return null;
-  if (segments.at(-1) === "__root") return null;
-  if (segments.at(-1) === "index" || segments.at(-1) === "route") segments.pop();
+  if (name === "__root") return null;
+  if (name.includes(".")) return null;
+  if (name === "index" || name === "route") segments.pop();
 
   const url = `/${segments.map((segment) => PARAMS[segment] ?? segment).join("/")}`;
   return url === "/" ? "/" : url.replace(/\/$/, "");

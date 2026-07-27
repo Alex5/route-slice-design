@@ -107,3 +107,42 @@
   --color-layer-routes: oklch(0.78 0.16 165);
   --color-layer-shared: oklch(0.7 0.17 255);
 }
+
+/* Shiki renders its own palette inline; the surface stays ours. */
+.code-block .shiki,
+.code-block .shiki span {
+  background-color: transparent !important;
+}
+
+.code-block .shiki code {
+  display: block;
+  counter-reset: line;
+  /* Shiki separates its line spans with real newlines. Zeroing the leading here
+     keeps those stray text nodes from rendering as blank lines; each .line
+     restores it for itself. */
+  line-height: 0;
+}
+
+.code-block .line {
+  display: block;
+  padding-inline: 0.75rem;
+  line-height: 1.45;
+}
+
+/* Line numbers come from a counter, so nothing has to be woven into the text. */
+.code-block.numbered .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2.5rem;
+  margin-inline-start: -0.75rem;
+  padding-inline-end: 0.75rem;
+  text-align: end;
+  color: color-mix(in oklch, var(--color-muted-foreground) 45%, transparent);
+  user-select: none;
+}
+
+/* Lines the twin comparison found in both files. */
+.code-block .line.is-shared {
+  background-color: color-mix(in oklch, var(--color-layer-shared) 12%, transparent) !important;
+}

@@ -285,7 +285,7 @@ export const sourceNotes: Record<string, SourceNote> = {
     role: "store",
     note: "The store sits beside the route, not in shared.",
     doc: "Zustand for complex local state, colocated because nothing outside /board has any use for it. Cards are grouped by column so a move replaces exactly two arrays and the rest keep their identity. Server data in here would be a mistake — that belongs to the query layer.",
-    use: "Named .ts, not .tsx: the suffix carries the role, the extension still has to tell the truth about the contents.",
+    use: "Named .ts, not .tsx: the suffix carries the role, the extension still tells the truth about the contents. A dotted name is also how the router knows this is not an address — no URL is printed beside it in the tree, and clicking it only selects.",
     rule: "§ 8 · § 3",
   },
   "src/routes/board/index.tsx": {
@@ -319,7 +319,7 @@ export const sourceNotes: Record<string, SourceNote> = {
     role: "context",
     note: "Native context, deliberately not a store.",
     doc: "A store would outlive the screen and a prop chain would thread through every step. Context is the size of the problem: scoped to a subtree, gone when it unmounts.",
-    use: "Named .tsx because the provider is a component — the role is in the suffix, the extension describes the contents.",
+    use: "Named .tsx because the provider is a component — the role is in the suffix, the extension describes the contents. Like every dotted name it answers no URL; only wizard/index.tsx does.",
     rule: "§ 8 · § 3",
   },
   "src/routes/wizard/index.tsx": {
@@ -366,7 +366,7 @@ export const sourceNotes: Record<string, SourceNote> = {
   },
   "src/shared/lib/source-tree.ts": {
     note: "The tree on the left is this repository, not a description of it.",
-    doc: "import.meta.glob hands over Vite's module graph, and routeForPath derives each URL with the same rules the router uses. Nothing is maintained by hand.",
+    doc: "import.meta.glob hands over Vite's module graph, and routeForPath derives each URL with the same rules the generator applies — including the one that a dotted name is a role file, not a route. Nothing is maintained by hand.",
     use: "Rename any file and watch it move in the tree, change its URL and relabel its outline, with no list to update.",
   },
   "src/shared/lib/source-notes.ts": {
@@ -381,6 +381,10 @@ export const sourceNotes: Record<string, SourceNote> = {
   "src/shared/lib/source-code.ts": {
     doc: "The text of every file, loaded on demand through Vite's ?raw. What the reader sees is what is on disk, not a copy pasted into a document.",
     use: "A glob never includes the file it is written in, so this one imports itself directly to stay readable.",
+  },
+  "src/shared/lib/highlight.ts": {
+    doc: "Shiki, loaded fine-grained: only the grammars this repository contains, only on first use, and with the JavaScript regex engine instead of the Oniguruma wasm.",
+    use: "Add a grammar by naming it here; nothing else changes, because the language is picked from the file extension.",
   },
   "src/shared/explorer": {
     doc: "The explanatory overlay: the tree, the note panel, and the shared idea of which file is being pointed at.",
@@ -418,6 +422,14 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Takes a path and nothing else, and the tree reads the same filesystem — so a label and the tree cannot disagree.",
     use: "Wrap a new component in a <Boundary> pointing at its path and it joins the map with no registration step.",
     rule: "§ 5",
+  },
+  [`${UI}/code`]: {
+    doc: "Renders source with highlighting.",
+    use: "Used by both readers in the app — the source view and the twin comparison — so they cannot drift apart in appearance.",
+  },
+  [`${UI}/code/code.tsx`]: {
+    doc: "Falls back to plain text while the grammar loads and if it fails: colour is a convenience, the code is the point. The markup it injects is Shiki's output over this repository's own files, never anything a visitor supplies.",
+    use: "Pass isShared to tint lines, which is how the comparison marks what the two twins have in common.",
   },
   [`${UI}/source-view`]: {
     doc: "Renders a file as text with line numbers.",
