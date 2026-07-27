@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "fmt": "oxfmt",
+    "fmt": "oxfmt src",
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
@@ -45,7 +45,6 @@
   },
   "packageManager": "pnpm@11.15.1",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run lint",
-    "*": "oxfmt --no-error-on-unmatched-pattern"
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run fmt"
   }
 }
