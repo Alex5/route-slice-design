@@ -1,6 +1,6 @@
 {
-  "name": "arch-explorer",
-  "private": true,
+  "name": "route-slice-design",
+  "private": false,
   "type": "module",
   "author": {
     "name": "Aleksei Ilin",
