@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
 import { findTask, TASK_STATUS_LABEL } from "#/shared/api/mock-data.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { Pill } from "#/shared/ui/pill/pill.tsx";
+import { Button } from "#/shared/ui/button/button.tsx";
+import { Badge } from "#/shared/ui/badge/badge.tsx";
 
 const FILE = "src/routes/react/projects/$projectId/tasks/$taskId/index.tsx";
 
@@ -17,16 +18,17 @@ function TaskPage() {
           <div className="font-mono text-xs text-muted-foreground">{task.id}</div>
           <h2 className="text-lg font-semibold tracking-tight">{task.title}</h2>
         </div>
+        <Button asChild size="xs" variant="secondary">
         <Link
-          to="/react/projects/$projectId/tasks/$taskId/edit"
-          params={{ projectId, taskId }}
-          className="rounded-md bg-secondary px-2.5 py-1 text-xs text-secondary-foreground transition-colors hover:bg-accent"
-        >
-          Edit
-        </Link>
+            to="/react/projects/$projectId/tasks/$taskId/edit"
+            params={{ projectId, taskId }}
+          >
+            Edit
+          </Link>
+      </Button>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <Pill active>{TASK_STATUS_LABEL[task.status]}</Pill>
+        <Badge variant="secondary">{TASK_STATUS_LABEL[task.status]}</Badge>
         <span>{task.assignee}</span>
       </div>
     </Boundary>

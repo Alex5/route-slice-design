@@ -4,7 +4,7 @@ import { TaskFormFields } from "#/routes/react/projects/$projectId/tasks/-compon
 import { findTask } from "#/shared/api/mock-data.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { FormActions } from "#/shared/ui/form-actions/form-actions.tsx";
-import { Section } from "#/shared/ui/section/section.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";
 
 const FILE = "src/routes/react/projects/$projectId/tasks/$taskId/edit/index.tsx";
 
@@ -19,9 +19,14 @@ function EditTaskPage() {
   return (
     <Boundary file={FILE} label="$taskId/edit/index.tsx" className="space-y-6">
       <h2 className="text-lg font-semibold tracking-tight">Edit task</h2>
-      <Section title="Details">
-        <TaskFormFields task={task} />
-      </Section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TaskFormFields task={task} />
+      </CardContent>
+      </Card>
       <FormActions submitLabel="Save changes" onCancel={close} onSubmit={close} />
     </Boundary>
   );

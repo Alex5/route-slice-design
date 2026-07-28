@@ -1,6 +1,20 @@
+import type * as React from "react";
+
 import { cn } from "#/shared/lib/utils.ts";
 
-/** Stand-in for content the example does not need to spell out. */
-export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("h-2.5 rounded-full bg-white/10", className)} />;
+/**
+ * shadcn's skeleton. Used here for content the example deliberately leaves out
+ * rather than for loading, so call sites pass `animate-none` — a pulse would
+ * claim the app is waiting on something when it is not.
+ */
+function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn("animate-pulse rounded-md bg-accent", className)}
+      {...props}
+    />
+  );
 }
+
+export { Skeleton };

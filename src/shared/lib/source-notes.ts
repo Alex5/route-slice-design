@@ -427,6 +427,7 @@ export const sourceNotes: Record<string, SourceNote> = {
   },
   [`${UI}/code/code.tsx`]: {
     doc: "Falls back to plain text while the grammar loads and if it fails: colour is a convenience, the code is the point. The markup it injects is Shiki's output over this repository's own files, never anything a visitor supplies.",
+    rule: "§ 5",
     use: "Pass isShared to tint lines, which is how the comparison marks what the two twins have in common.",
   },
   [`${UI}/source-view`]: {
@@ -438,15 +439,6 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Loads a file on demand and prints it. No highlighting on purpose: the point is what the code says, not how it looks.",
     use: "Reading a file is addressable, so a review comment can link to the exact source the reader should see.",
   },
-  [`${UI}/section`]: {
-    doc: "Titled container used by both write pages.",
-    use: "Compose it; do not extend it with domain-specific props.",
-  },
-  [`${UI}/section/section.tsx`]: {
-    doc: "Heading plus bordered body. Both task pages compose it and it has no idea either of them exists — which is what earns it a place in shared.",
-    use: "If it ever needs to know about tasks, that is the signal to move it down into the route tree.",
-    rule: "§ 5",
-  },
   [`${UI}/form-actions`]: {
     doc: "The submit and cancel row.",
     use: "Pass the label in. A component that branches on create-versus-edit has taken on knowledge it should not have.",
@@ -456,30 +448,58 @@ export const sourceNotes: Record<string, SourceNote> = {
     use: "This is how the twins share a component without sharing a mode flag.",
     rule: "§ 5",
   },
+  [`${UI}/button`]: {
+    doc: "shadcn's button, unmodified. Every clickable thing in the app is this, including links rendered with asChild.",
+    use: "Reach for a variant and a size before writing classes. A one-off button is a sign the variant list is missing something.",
+  },
+  [`${UI}/button/button.tsx`]: {
+    doc: "The `xs` size is the only addition to the stock file — the preview is dense and needed one.",
+  },
+  [`${UI}/card`]: {
+    doc: "shadcn's card. Titled container for a form section.",
+    use: "Compose Card, CardHeader, CardTitle, CardContent; do not extend it with domain props.",
+    rule: "§ 5",
+  },
+  [`${UI}/card/card.tsx`]: {
+    doc: "Both task forms compose it and it knows nothing about either, which is what earns it a place in shared.",
+    rule: "§ 5",
+  },
+  [`${UI}/input`]: {
+    doc: "shadcn's input.",
+    use: "Always pair it with a Label and an id; the wizard shows the shape.",
+  },
+  [`${UI}/input/input.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/label`]: {
+    doc: "shadcn's label, on Radix.",
+    use: "htmlFor pointing at the input's id — that is what makes the label clickable and read aloud.",
+  },
+  [`${UI}/label/label.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/select`]: {
+    doc: "shadcn's select, on Radix.",
+    use: "Used by the header to switch stacks. It replaced a raw <select>, which could not be styled to match anything.",
+  },
+  [`${UI}/select/select.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/table`]: {
+    doc: "shadcn's table primitives.",
+    use: "Do not use them directly in a route; go through data-table, which is the arrangement this app actually needs.",
+  },
+  [`${UI}/table/table.tsx`]: { doc: "Unmodified shadcn." },
   [`${UI}/data-table`]: {
     doc: "The list primitive both tables are built on.",
     use: "Give it rows and a row renderer; it decides nothing about the data.",
   },
   [`${UI}/data-table/data-table.tsx`]: {
-    doc: "Generic over the row type and ignorant of Task and Project, which is precisely why it is allowed in shared.",
-    use: "Both tables in the app compose it while keeping their own columns and their own navigation.",
+    doc: "A thin arrangement of shadcn's table primitives, generic over the row type and ignorant of Task and Project — which is precisely why it is allowed in shared.",
+    use: "Both tables in the app compose it while keeping their own columns and their own navigation. Columns are data, not markup, so a route describes what it shows rather than how a table is built.",
     rule: "§ 5",
-  },
-  [`${UI}/pill`]: {
-    doc: "The small button used for tabs, filters and actions.",
-    use: "Reach for it before writing another one-off button.",
-  },
-  [`${UI}/pill/pill.tsx`]: {
-    doc: "Disabled when it has no handler, so a decorative pill cannot pretend to be interactive.",
-    use: "Pass onClick to make it live; omit it to show state.",
   },
   [`${UI}/skeleton`]: {
     doc: "Placeholder bars standing in for content the example does not need to spell out.",
     use: "Used deliberately throughout so structure stays the loudest thing on screen.",
   },
   [`${UI}/skeleton/skeleton.tsx`]: {
-    doc: "A grey bar. The reason the preview reads as architecture rather than as a product screenshot.",
-    use: "Give it a width class; it has no other behaviour.",
+    doc: "shadcn's skeleton. It is used here for content the example leaves out rather than for loading, so call sites pass animate-none — a pulse would claim the app is waiting on something when it is not.",
+    use: "Give it a width class and animate-none. It is the reason the preview reads as architecture rather than as a product screenshot.",
   },
   [`${UI}/badge`]: {
     doc: "Small status label, straight from shadcn.",

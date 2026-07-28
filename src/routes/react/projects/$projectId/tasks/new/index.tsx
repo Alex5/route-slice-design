@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { TaskFormFields } from "#/routes/react/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { FormActions } from "#/shared/ui/form-actions/form-actions.tsx";
-import { Section } from "#/shared/ui/section/section.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";
 
 const FILE = "src/routes/react/projects/$projectId/tasks/new/index.tsx";
 
@@ -16,9 +16,14 @@ function AddTaskPage() {
   return (
     <Boundary file={FILE} label="tasks/new/index.tsx" className="space-y-6">
       <h2 className="text-lg font-semibold tracking-tight">New task</h2>
-      <Section title="Details">
-        <TaskFormFields />
-      </Section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TaskFormFields />
+      </CardContent>
+      </Card>
       <FormActions submitLabel="Create task" onCancel={close} onSubmit={close} />
     </Boundary>
   );

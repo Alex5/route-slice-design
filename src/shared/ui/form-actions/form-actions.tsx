@@ -1,4 +1,4 @@
-import { Pill } from "#/shared/ui/pill/pill.tsx";
+import { Button } from "#/shared/ui/button/button.tsx";
 
 /**
  * Submit and cancel row. The labels arrive as props, so "Create task" and
@@ -15,10 +15,12 @@ export function FormActions({
 }) {
   return (
     <div className="flex justify-end gap-2">
-      <Pill onClick={onCancel}>Cancel</Pill>
-      <Pill active onClick={onSubmit ?? (() => undefined)}>
+      <Button variant="ghost" size="sm" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button size="sm" onClick={onSubmit}>
         {submitLabel}
-      </Pill>
+      </Button>
     </div>
   );
 }

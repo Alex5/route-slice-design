@@ -4,6 +4,7 @@ import { StatusFilter } from "#/routes/react/projects/$projectId/tasks/-componen
 import { TasksTable } from "#/routes/react/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
 import { tasks, TASK_STATUSES, type TaskStatus } from "#/shared/api/mock-data.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
+import { Button } from "#/shared/ui/button/button.tsx";
 
 const FILE = "src/routes/react/projects/$projectId/tasks/index.tsx";
 
@@ -17,13 +18,14 @@ function TasksPage() {
     <Boundary file={FILE} label="tasks/index.tsx" className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-lg font-semibold tracking-tight">Tasks</h2>
+        <Button asChild size="xs" variant="secondary">
         <Link
-          to="/react/projects/$projectId/tasks/new"
-          params={{ projectId }}
-          className="rounded-md bg-secondary px-2.5 py-1 text-xs text-secondary-foreground transition-colors hover:bg-accent"
-        >
-          New task
-        </Link>
+            to="/react/projects/$projectId/tasks/new"
+            params={{ projectId }}
+          >
+            New task
+          </Link>
+      </Button>
       </div>
       <StatusFilter />
       <TasksTable projectId={projectId} rows={rows} />

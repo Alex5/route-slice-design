@@ -1,6 +1,13 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 
 import { VARIANTS, variantForPath } from "#/shared/lib/variants.ts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "#/shared/ui/select/select.tsx";
 import pkg from "#package";
 
 /**
@@ -42,22 +49,25 @@ export function SiteHeader() {
 
       {/* The variant switches the whole application, stack included — so it is a
           select over stacks, not a tab bar over screens. */}
-      <select
+      <Select
         value={current.id}
-        onChange={(event) => {
-          const next = VARIANTS.find((variant) => variant.id === event.target.value);
+        onValueChange={(id) => {
+          const next = VARIANTS.find((variant) => variant.id === id);
           if (next) navigate({ to: next.to });
         }}
-        aria-label="Stack"
-        className="hidden h-8 rounded-md border border-white/10 bg-transparent px-2 text-[11px] text-muted-foreground outline-none transition-colors hover:text-foreground md:block"
       >
-        {VARIANTS.map((variant) => (
-          <option key={variant.id} value={variant.id} className="bg-popover text-foreground">
-            {variant.label}
-            {variant.built ? "" : " — not written yet"}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger size="sm" aria-label="Stack" className="hidden w-36 text-xs md:flex">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {VARIANTS.map((variant) => (
+            <SelectItem key={variant.id} value={variant.id} className="text-xs">
+              {variant.label}
+              {variant.built ? "" : " — not written yet"}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <div className="ms-auto flex items-center gap-1.5">
         <div className="hidden items-center gap-1.5 lg:flex">

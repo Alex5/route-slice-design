@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useId } from "react";
 
 import { WizardSteps } from "#/routes/react/wizard/-components/wizard-steps/wizard-steps.tsx";
 import { useWizard, WizardProvider } from "#/routes/react/wizard/wizard.context.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { Section } from "#/shared/ui/section/section.tsx";
+import { Input } from "#/shared/ui/input/input.tsx";
+import { Label } from "#/shared/ui/label/label.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";
 
 const FILE = "src/routes/react/wizard/index.tsx";
 
@@ -16,15 +19,13 @@ function Field({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const id = useId();
+
   return (
-    <label className="block space-y-2">
-      <span className="text-[11px] text-muted-foreground">{label}</span>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-8 w-full rounded-md border border-white/10 bg-transparent px-2.5 text-xs outline-none focus:border-layer-routes"
-      />
-    </label>
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} value={value} onChange={(event) => onChange(event.target.value)} />
+    </div>
   );
 }
 
@@ -72,9 +73,14 @@ function WizardPage() {
       <WizardProvider>
         <div className="space-y-5">
           <WizardSteps />
-          <Section title="Draft">
-            <CurrentStep />
-          </Section>
+          <Card>
+        <CardHeader>
+          <CardTitle>Draft</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CurrentStep />
+          </CardContent>
+      </Card>
         </div>
       </WizardProvider>
     </Boundary>

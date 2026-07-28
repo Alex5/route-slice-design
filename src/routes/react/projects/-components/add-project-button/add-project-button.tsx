@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { Pill } from "#/shared/ui/pill/pill.tsx";
+import { Button } from "#/shared/ui/button/button.tsx";
 
 const FILE = "src/routes/react/projects/-components/add-project-button/add-project-button.tsx";
 
@@ -15,17 +15,17 @@ export function AddProjectButton() {
 
   return (
     <Boundary file={FILE} label="add-project-button" className="pb-3 pt-6">
-      <Pill onClick={() => setOpen((previous) => !previous)}>
+      <Button size="xs" variant="secondary" onClick={() => setOpen((previous) => !previous)}>
         {open ? "Cancel" : "New project"}
-      </Pill>
+      </Button>
       {open && (
         <div className="absolute end-0 top-full z-20 mt-2 w-56 space-y-3 rounded-lg border bg-popover p-3 text-xs shadow-xl">
           <div className="font-medium">New project</div>
           <div className="h-8 rounded-md border border-white/10" />
           <div className="flex justify-end">
-            <Pill active onClick={() => setOpen(false)}>
+            <Button size="xs" onClick={() => setOpen(false)}>
               Create
-            </Pill>
+            </Button>
           </div>
         </div>
       )}

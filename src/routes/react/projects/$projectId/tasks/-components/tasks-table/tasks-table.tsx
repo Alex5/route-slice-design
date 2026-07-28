@@ -1,19 +1,42 @@
 import { useNavigate } from "@tanstack/react-router";
 
 import { TASK_STATUS_LABEL, type Task } from "#/shared/api/mock-data.ts";
+import { Badge } from "#/shared/ui/badge/badge.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { DataTable } from "#/shared/ui/data-table/data-table.tsx";
+import { DataTable, type Column } from "#/shared/ui/data-table/data-table.tsx";
 import { Skeleton } from "#/shared/ui/skeleton/skeleton.tsx";
 
-const FILE = "src/routes/react/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
+const FILE =
+  "src/routes/react/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
+
+const columns: Column<Task>[] = [
+  {
+    key: "id",
+    header: "Key",
+    cell: (task) => <span className="font-mono text-layer-routes">{task.id}</span>,
+  },
+  {
+    key: "title",
+    header: "Task",
+    cell: () => <Skeleton className="h-2.5 w-full animate-none" />,
+    className: "w-full",
+  },
+  {
+    key: "status",
+    header: "Status",
+    cell: (task) => <Badge variant="secondary">{TASK_STATUS_LABEL[task.status]}</Badge>,
+    className: "text-end",
+  },
+];
 
 export function TasksTable({ projectId, rows }: { projectId: string; rows: Task[] }) {
   const navigate = useNavigate();
 
   return (
-    <Boundary file={FILE} label="-components/tasks-table">
+    <Boundary file={FILE} label="tasks-table">
       <DataTable
         rows={rows}
+        columns={columns}
         getKey={(task) => task.id}
         empty="No tasks match this filter"
         onOpen={(task) =>
@@ -22,15 +45,6 @@ export function TasksTable({ projectId, rows }: { projectId: string; rows: Task[
             params: { projectId, taskId: task.id },
           })
         }
-        renderRow={(task) => (
-          <>
-            <span className="w-16 shrink-0 font-mono text-layer-routes">{task.id}</span>
-            <Skeleton className="flex-1" />
-            <span className="w-20 shrink-0 text-end text-muted-foreground">
-              {TASK_STATUS_LABEL[task.status]}
-            </span>
-          </>
-        )}
       />
     </Boundary>
   );

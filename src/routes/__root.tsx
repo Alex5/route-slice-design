@@ -3,17 +3,15 @@ import { Columns2 } from "lucide-react";
 
 import { WithProviders } from "#/app/providers/with-providers.tsx";
 import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
-import { cn } from "#/shared/lib/utils.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { Explorer } from "#/shared/ui/explorer/explorer.tsx";
 import { NotePanel } from "#/shared/ui/explorer/note-panel.tsx";
 import { SourceView } from "#/shared/ui/source-view/source-view.tsx";
 
-const FILE = "src/routes/__root.tsx";
+import { Tabs, TabsList, TabsTrigger } from "../../@/components/ui/tabs.tsx";
 
-const tabClass = "rounded px-2 py-0.5 text-[11px] text-muted-foreground transition-colors";
-const activeTabClass = "bg-secondary text-foreground";
+const FILE = "src/routes/__root.tsx";
 
 /**
  * The shell every URL renders inside: the file tree on the left, an <Outlet/>
@@ -68,25 +66,16 @@ function Preview({ source }: { source?: string }) {
             {query && `?${query}`}
           </span>
         </div>
-        {/* Two views of the same route: what it renders, and what renders it. */}
-        <div className="flex shrink-0 items-center gap-0.5 rounded-md border border-white/10 p-0.5">
-          <button
-            type="button"
-            onClick={() => showSource(null)}
-            className={cn(tabClass, !source && activeTabClass)}
-          >
-            Preview
-          </button>
-          <button
-            type="button"
-            disabled={!selectedPath}
-            onClick={() => showSource(selectedPath)}
-            className={cn(tabClass, source && activeTabClass, !selectedPath && "opacity-40")}
-          >
-            Code
-          </button>
-        </div>
-
+        <Tabs value={source ? "code" : "preview"}>
+          <TabsList variant="line">
+            <TabsTrigger onClick={() => showSource(null)} value="preview">
+              preview
+            </TabsTrigger>
+            <TabsTrigger onClick={() => showSource(selectedPath)} value="code">
+              code
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Link
           to="/compare"
           className="flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
@@ -109,7 +98,7 @@ function Preview({ source }: { source?: string }) {
           </div>
         </div>
       ) : (
-      <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8">
           <Boundary file={FILE} label="__root.tsx">
             <Outlet />
           </Boundary>

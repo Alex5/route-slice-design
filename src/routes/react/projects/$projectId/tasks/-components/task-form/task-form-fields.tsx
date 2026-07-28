@@ -1,11 +1,12 @@
+import { useId } from "react";
+
 import type { Task } from "#/shared/api/mock-data.ts";
-
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { Skeleton } from "#/shared/ui/skeleton/skeleton.tsx";
+import { Input } from "#/shared/ui/input/input.tsx";
+import { Label } from "#/shared/ui/label/label.tsx";
 
-const FILE = "src/routes/react/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
-
-const FIELDS = ["Title", "Description", "Assignee"] as const;
+const FILE =
+  "src/routes/react/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
 
 /**
  * Lifted here on the second use, not before.
@@ -15,16 +16,18 @@ const FIELDS = ["Title", "Description", "Assignee"] as const;
  * a Task is, which is exactly what disqualifies it from shared/ui (§ 5).
  */
 export function TaskFormFields({ task }: { task?: Task }) {
+  const id = useId();
+
   return (
     <Boundary file={FILE} label="-components/task-form" className="space-y-4">
-      {FIELDS.map((field) => (
-        <div key={field} className="space-y-2">
-          <div className="text-[11px] text-muted-foreground">{field}</div>
-          <div className="flex h-8 items-center rounded-md border border-white/10 px-2.5">
-            {task && <Skeleton className="w-1/2" />}
-          </div>
-        </div>
-      ))}
+      <div className="space-y-2">
+        <Label htmlFor={`${id}-title`}>Title</Label>
+        <Input id={`${id}-title`} defaultValue={task?.title} placeholder="What needs doing?" />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`${id}-assignee`}>Assignee</Label>
+        <Input id={`${id}-assignee`} defaultValue={task?.assignee} placeholder="Unassigned" />
+      </div>
     </Boundary>
   );
 }
