@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
-import { Code } from "#/shared/ui/code/code.tsx";
+import editSource from "#/routes/react/projects/$projectId/tasks/$taskId/edit/index.tsx?raw";
 // The two twins are imported as text, not as modules: this page reads them the
 // way a reader would, and takes on no dependency on what they render.
-import addSource from "#/routes/projects/$projectId/tasks/new/index.tsx?raw";
-import editSource from "#/routes/projects/$projectId/tasks/$taskId/edit/index.tsx?raw";
+import addSource from "#/routes/react/projects/$projectId/tasks/new/index.tsx?raw";
+import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
+import { Code } from "#/shared/ui/code/code.tsx";
 
 const FILE = "src/routes/compare.tsx";
-const ADD = "src/routes/projects/$projectId/tasks/new/index.tsx";
-const EDIT = "src/routes/projects/$projectId/tasks/$taskId/edit/index.tsx";
+const ADD = "src/routes/react/projects/$projectId/tasks/new/index.tsx";
+const EDIT = "src/routes/react/projects/$projectId/tasks/$taskId/edit/index.tsx";
 
 /**
  * Marks the lines of `own` that also occur in `other`, consuming each match so

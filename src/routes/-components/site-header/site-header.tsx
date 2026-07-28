@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 
+import { VARIANTS, variantForPath } from "#/shared/lib/variants.ts";
 import pkg from "#package";
-import { cn } from "#/shared/lib/utils.ts";
 
 /**
  * Versions come from package.json rather than from a list someone remembers to
@@ -18,19 +18,6 @@ function version(name: string) {
   return minor ? `${major}.${minor}` : major;
 }
 
-/**
- * Each entry is a route branch demonstrating a different answer to "where does
- * this state belong" — the taxonomy in § 8, one screen per row.
- */
-const SCENARIOS = [
-  { to: "/projects", label: "Server + URL" },
-  { to: "/board", label: "Store" },
-  { to: "/wizard", label: "Context" },
-] as const;
-
-const scenarioClass =
-  "rounded-md px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground";
-
 const STACK = [
   { label: "React", package: "react" },
   { label: "TanStack Router", package: "@tanstack/react-router" },
@@ -41,6 +28,10 @@ const STACK = [
 ];
 
 export function SiteHeader() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const current = variantForPath(pathname);
+
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b px-5">
       {/* The accent on "slice" is the same green the tree uses for the routes
@@ -49,18 +40,24 @@ export function SiteHeader() {
         route <span className="text-layer-routes">slice</span> design
       </span>
 
-      <nav className="hidden items-center gap-0.5 rounded-lg border border-white/10 p-0.5 md:flex">
-        {SCENARIOS.map((scenario) => (
-          <Link
-            key={scenario.to}
-            to={scenario.to}
-            className={scenarioClass}
-            activeProps={{ className: cn(scenarioClass, "bg-secondary text-foreground") }}
-          >
-            {scenario.label}
-          </Link>
+      {/* The variant switches the whole application, stack included — so it is a
+          select over stacks, not a tab bar over screens. */}
+      <select
+        value={current.id}
+        onChange={(event) => {
+          const next = VARIANTS.find((variant) => variant.id === event.target.value);
+          if (next) navigate({ to: next.to });
+        }}
+        aria-label="Stack"
+        className="hidden h-8 rounded-md border border-white/10 bg-transparent px-2 text-[11px] text-muted-foreground outline-none transition-colors hover:text-foreground md:block"
+      >
+        {VARIANTS.map((variant) => (
+          <option key={variant.id} value={variant.id} className="bg-popover text-foreground">
+            {variant.label}
+            {variant.built ? "" : " — not written yet"}
+          </option>
         ))}
-      </nav>
+      </select>
 
       <div className="ms-auto flex items-center gap-1.5">
         <div className="hidden items-center gap-1.5 lg:flex">

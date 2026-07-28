@@ -1,3 +1,5 @@
+import type * as React from "react";
+
 /**
  * A shadcn/ui-flavoured TreeView.
  *
@@ -8,7 +10,6 @@
  */
 import { TreeView as Ark } from "@ark-ui/react";
 import { ChevronRight } from "lucide-react";
-import type * as React from "react";
 
 import { cn } from "#/shared/lib/utils.ts";
 
@@ -33,7 +34,7 @@ export function TreeViewLabel({ className, ...props }: React.ComponentProps<type
 }
 
 const nodeRowClass =
-  "group relative flex h-7 cursor-pointer select-none items-center gap-1.5 rounded-md pe-2 text-sm outline-none transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[selected]:bg-accent data-[selected]:text-accent-foreground";
+  "group relative flex h-7 cursor-pointer select-none items-center gap-1.5 rounded-md pe-2 text-sm outline-none transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[selected]:bg-accent data-[selected]:text-accent-foreground data-[selected]:ring-1 data-[selected]:ring-inset data-[selected]:ring-border";
 
 export function TreeViewBranchControl({
   className,

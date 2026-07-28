@@ -1,14 +1,19 @@
 import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Columns2 } from "lucide-react";
 
-import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
 import { WithProviders } from "#/app/providers/with-providers.tsx";
-import { Explorer } from "#/shared/explorer/explorer.tsx";
-import { NotePanel } from "#/shared/explorer/note-panel.tsx";
+import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
+import { cn } from "#/shared/lib/utils.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
+import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
+import { Explorer } from "#/shared/ui/explorer/explorer.tsx";
+import { NotePanel } from "#/shared/ui/explorer/note-panel.tsx";
 import { SourceView } from "#/shared/ui/source-view/source-view.tsx";
 
 const FILE = "src/routes/__root.tsx";
+
+const tabClass = "rounded px-2 py-0.5 text-[11px] text-muted-foreground transition-colors";
+const activeTabClass = "bg-secondary text-foreground";
 
 /**
  * The shell every URL renders inside: the file tree on the left, an <Outlet/>
@@ -42,6 +47,13 @@ function RootLayout() {
 function Preview({ source }: { source?: string }) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
+  const { selectedPath } = useExplorer();
+
+  const showSource = (path: string | null) =>
+    navigate({
+      to: ".",
+      search: (previous: Record<string, unknown>) => ({ ...previous, source: path ?? undefined }),
+    });
 
   const query = new URLSearchParams(search as Record<string, string>).toString();
 
@@ -56,6 +68,25 @@ function Preview({ source }: { source?: string }) {
             {query && `?${query}`}
           </span>
         </div>
+        {/* Two views of the same route: what it renders, and what renders it. */}
+        <div className="flex shrink-0 items-center gap-0.5 rounded-md border border-white/10 p-0.5">
+          <button
+            type="button"
+            onClick={() => showSource(null)}
+            className={cn(tabClass, !source && activeTabClass)}
+          >
+            Preview
+          </button>
+          <button
+            type="button"
+            disabled={!selectedPath}
+            onClick={() => showSource(selectedPath)}
+            className={cn(tabClass, source && activeTabClass, !selectedPath && "opacity-40")}
+          >
+            Code
+          </button>
+        </div>
+
         <Link
           to="/compare"
           className="flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
@@ -72,28 +103,13 @@ function Preview({ source }: { source?: string }) {
             <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
               {source}
             </span>
-            <button
-              type="button"
-              onClick={() =>
-                navigate({
-                  to: ".",
-                  search: (previous: Record<string, unknown>) => ({
-                    ...previous,
-                    source: undefined,
-                  }),
-                })
-              }
-              className="shrink-0 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Back to the app
-            </button>
           </div>
           <div className="min-h-0 flex-1 overflow-auto">
             <SourceView path={source} />
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8">
           <Boundary file={FILE} label="__root.tsx">
             <Outlet />
           </Boundary>
@@ -117,7 +133,7 @@ function NotFound() {
         <code>wizard.context.tsx</code> — is not a route either. The tree on the left prints a URL
         beside the files that have one.
       </p>
-      <Link to="/projects" className="inline-block text-xs text-layer-routes hover:underline">
+      <Link to="/react/projects" className="inline-block text-xs text-layer-routes hover:underline">
         Back to /projects
       </Link>
     </div>

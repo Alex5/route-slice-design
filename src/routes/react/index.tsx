@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-/** `/` has to answer something; the app starts at the project list. */
-export const Route = createFileRoute("/")({
+/** The React variant starts at its project list. */
+export const Route = createFileRoute("/react/")({
   beforeLoad: () => {
     throw redirect({ to: "/react/projects" });
   },

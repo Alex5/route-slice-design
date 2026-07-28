@@ -34,9 +34,11 @@ action touches no existing file but one line of JSX.
 nearest ancestor both callers share. Third, or from another branch: `shared/`.
 Duplication before that point is correct, not debt.
 
-**6. State by origin, not by convenience.** Server → query layer. In the URL →
-search params. Complex and local → a store beside the route. Shared by one
-subtree → native context. Trivial → `useState`.
+**6. State by origin, not by convenience.** Server, in the URL, shared by one
+subtree, trivially local — four different origins, four different homes. The
+architecture names the origin; **the variant names the tool**. Which query
+library or store fills a role is an implementation decision and belongs to a
+stack, not to the rules.
 
 **7. The contract is the source of truth.** Backend types are generated, never
 written by hand; form schemas extend the generated ones rather than restating
@@ -51,15 +53,19 @@ build, not the app.
 
 ## What this repository shows
 
-Three route branches, one per answer to "where does this state belong":
+One application, written to the rules, in a stack you pick from the header.
 
-| Branch | Scenario | Key file |
-|---|---|---|
-| `/projects` | server data, and filters that must survive a reload | `tasks/index.tsx` (search params) |
-| `/board` | complex local state, gone when you leave | `board.store.ts` |
-| `/wizard` | state shared by one subtree | `wizard.context.tsx` |
+| Variant | Routing | Server state | Client state | |
+|---|---|---|---|---|
+| **React** | TanStack Router | React Query | native context | built |
+| Vue | Vue Router | TanStack Query | Pinia | not written yet |
+| Angular | Angular Router | HttpClient | signals | not written yet |
 
-Switch between them from the header.
+The variant is the first URL segment, so switching stacks is navigation like
+everything else. The folder rules do not change between variants — only what
+fills each role does. That separation is the answer to a fair objection: a store
+library appearing among the pillars made the architecture look less definite
+than it is.
 
 ## Reading it
 
@@ -67,12 +73,21 @@ The middle column is the app running for real. Every dashed box is one file's
 slice of the output, labelled with that file; nesting of boxes is nesting of
 layouts.
 
-- hover a file on the left — its box is outlined
+Selection is persistent, hover only previews — the two never compete for the
+same highlight:
+
+- click a file on the left — the browser navigates to the URL it answers, and
+  the file stays selected
+- navigate anywhere in the app — the tree reveals the branch and selects the
+  file that renders it
+- hover a file — its box is outlined at the lighter weight, and the selection
+  stays lit
 - hover a folder — every box inside it is outlined at once
-- click a file — the browser navigates to the URL it answers
-- hover a box — its file lights up in the tree
-- **Read the source** in the right panel — the file's real text, addressable as
-  `?source=<path>`
+- hover a box in the app — its file lights up in the tree, same lighter weight
+- **Preview / Code** in the preview header — what the route renders, or the file
+  that renders it. Clicking a file that answers no URL (`wizard.context.tsx`,
+  `*.loader.ts`) opens its code straight away, since there is nothing to preview.
+  The open file is addressable as `?source=<path>`
 - **Compare twins** — `/compare` puts the two task forms side by side and
   measures how alike they are
 
@@ -91,8 +106,11 @@ exists, and a path nobody has described.
   wants `index.tsx` under a `new/` folder; a dot-named file would become a URL
   segment. The folder carries the meaning, and the role suffix applies only to
   non-route files.
-- **Typed navigation has exactly one hole.** The file tree derives a URL from a
+- **Typed navigation has exactly one hole.** Opening a file derives a URL from a
   path at runtime and needs a cast. One line, one place, commented.
+- **Matching a rendered URL against a derived one is not enough.** It only ever
+  worked for the parameter values baked into the derivation, so `/tasks/TF-138`
+  selected nothing. The router's own match is asked instead.
 - **The twins are less alike than claimed.** `/compare` measures it instead of
   asserting it, and the measured figure came out below the one this project used
   to state in prose.
@@ -123,9 +141,10 @@ src/
     -components/           chrome on every URL (header)
     __root.tsx             shell: header, tree, <Outlet/>, note panel
     compare.tsx            /compare
-    projects/              server state and URL state
-    board/                 store state
-    wizard/                context state
+    react/                 the built variant
+      projects/            server state and URL state
+      wizard/              state shared by one subtree
+    vue/  angular/         the same app in other stacks, not written yet
   shared/                  knows nothing about routes/ or app/
     api/                   stands in for a generated client
     explorer/              the tree, the note panel, the hover state

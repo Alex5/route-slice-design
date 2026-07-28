@@ -7,14 +7,33 @@
  */
 import type { ReactNode } from "react";
 
-import { useExplorer } from "#/shared/explorer/explorer.context.tsx";
-import { cn } from "#/shared/lib/utils.ts";
+import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { isBoundaryActive, nodeByPath, type Layer } from "#/shared/lib/source-tree.ts";
+import { cn } from "#/shared/lib/utils.ts";
 
-const STYLE: Record<Layer, { border: string; chip: string }> = {
-  app: { border: "border-layer-app/80", chip: "bg-layer-app text-black" },
-  routes: { border: "border-layer-routes/80", chip: "bg-layer-routes text-black" },
-  shared: { border: "border-layer-shared/80", chip: "bg-layer-shared text-black" },
+/**
+ * Two weights, never in competition: a selection stays lit while the cursor
+ * roams, and a hover only previews.
+ */
+const STYLE: Record<Layer, { selected: string; hovered: string; chip: string; tint: string }> = {
+  app: {
+    selected: "border-layer-app/80",
+    hovered: "border-layer-app/35",
+    chip: "bg-layer-app text-black",
+    tint: "bg-layer-app/20 text-layer-app",
+  },
+  routes: {
+    selected: "border-layer-routes/80",
+    hovered: "border-layer-routes/35",
+    chip: "bg-layer-routes text-black",
+    tint: "bg-layer-routes/20 text-layer-routes",
+  },
+  shared: {
+    selected: "border-layer-shared/80",
+    hovered: "border-layer-shared/35",
+    chip: "bg-layer-shared text-black",
+    tint: "bg-layer-shared/20 text-layer-shared",
+  },
 };
 
 export function Boundary({
@@ -30,11 +49,12 @@ export function Boundary({
   className?: string;
   children?: ReactNode;
 }) {
-  const { activePath, hover, select } = useExplorer();
+  const { selectedPath, hoveredPath, hover, open } = useExplorer();
 
   const node = nodeByPath.get(file);
   const style = STYLE[node?.layer ?? "routes"];
-  const active = isBoundaryActive(activePath, file);
+  const selected = isBoundaryActive(selectedPath, file);
+  const hovered = isBoundaryActive(hoveredPath, file);
 
   return (
     <div
@@ -47,16 +67,20 @@ export function Boundary({
       onMouseOut={() => hover(null)}
       className={cn(
         "relative rounded-lg border border-dashed px-5 pb-5 pt-7 transition-colors",
-        active ? style.border : "border-white/10",
+        selected ? style.selected : hovered ? style.hovered : "border-white/10",
         className,
       )}
     >
       <button
         type="button"
-        onClick={() => select(file)}
+        onClick={() => open(file)}
         className={cn(
           "absolute -top-2.5 start-4 whitespace-nowrap rounded px-1.5 py-0.5 font-mono text-[10px] uppercase leading-4 tracking-wider transition-colors",
-          active ? style.chip : "bg-secondary text-muted-foreground hover:text-foreground",
+          selected
+            ? style.chip
+            : hovered
+              ? style.tint
+              : "bg-secondary text-muted-foreground hover:text-foreground",
         )}
       >
         {label ?? node?.name ?? file}

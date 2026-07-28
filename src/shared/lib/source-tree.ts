@@ -9,7 +9,7 @@
 export type Layer = "app" | "routes" | "shared";
 
 export interface SourceNode {
-  /** Repository-relative path, e.g. `src/routes/projects/index.tsx`. */
+  /** Repository-relative path, e.g. `src/routes/react/projects/index.tsx`. */
   id: string;
   name: string;
   layer: Layer;
@@ -61,12 +61,23 @@ export function routeForPath(path: string): string | null {
   return url === "/" ? "/" : url.replace(/\/$/, "");
 }
 
-/** The file that renders a given URL — the reverse of `routeForPath`. */
-export function pathForRoute(route: string): string | null {
-  for (const [path, node] of nodeByPath) {
-    if (node.route === route && /\/(index|route)\.tsx$/.test(path)) return path;
-  }
-  return null;
+/**
+ * The file that declares a given route, asked of the router rather than guessed
+ * from the address.
+ *
+ * Matching a rendered URL against a derived one only ever worked for the
+ * parameter values baked into `PARAMS` — `/tasks/TF-138` matched nothing. A
+ * route id carries the pattern instead of a substitution, so every parameter
+ * value lands on the same file, and a deployment base path cannot confuse it.
+ */
+export function pathForRouteId(routeId: string): string | null {
+  const base = `src/routes${routeId}`;
+
+  const candidates = routeId.endsWith("/")
+    ? [`${base}index.tsx`]
+    : [`${base}/route.tsx`, `${base}.tsx`];
+
+  return candidates.find((candidate) => nodeByPath.has(candidate)) ?? null;
 }
 
 function insert(root: SourceNode[], path: string) {

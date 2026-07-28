@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { ExplorerProvider } from "#/shared/explorer/explorer.context.tsx";
+import { ExplorerProvider } from "#/shared/ui/explorer/explorer.context.tsx";
 
 /**
  * One assembly point for providers. Nesting order is visible in a single file

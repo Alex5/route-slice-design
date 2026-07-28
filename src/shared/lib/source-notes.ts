@@ -22,11 +22,11 @@ export interface SourceNote {
   composedOf?: string[];
 }
 
-const R = "src/routes/projects";
+const R = "src/routes/react/projects";
 const P = `${R}/$projectId`;
 const TASKS = `${P}/tasks`;
 const UI = "src/shared/ui";
-const EXPLORER = "src/shared/explorer";
+const EXPLORER = "src/shared/ui/explorer";
 
 export const sourceNotes: Record<string, SourceNote> = {
   /* ── the three layers ─────────────────────────────────────────────────── */
@@ -105,6 +105,38 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Imports both task forms with Vite's ?raw, marks lines occurring in both, and prints the resulting percentage. The claim cannot drift away from the code the way a comment would.",
     use: "Nothing to maintain: rename or rewrite either twin and the number recomputes on the next build.",
     rule: "§ 5",
+  },
+
+  /* ── variants ─────────────────────────────────────────────────────────── */
+
+  "src/routes/react": {
+    doc: "One whole application in one stack. The architecture names roles — page, layout, lifted block, client state, server state — and a variant names the tools that fill them.",
+    use: "Switch stacks from the select in the header. The folder rules inside are identical in every variant; only the tools differ.",
+  },
+  "src/routes/react/index.tsx": {
+    role: "page",
+    doc: "Sends /react to the variant's project list, because a variant root has to answer something.",
+  },
+  "src/routes/vue": {
+    doc: "The same application in Vue Router and Pinia. Not written yet.",
+    use: "Building it would change no rule above this folder — only what fills each role.",
+  },
+  "src/routes/vue/index.tsx": { role: "page" },
+  "src/routes/angular": {
+    doc: "The same application in Angular. Not written yet.",
+  },
+  "src/routes/angular/index.tsx": { role: "page" },
+  "src/routes/-components/variant-placeholder": {
+    doc: "Stands in for a stack nobody has written.",
+    use: "It lists what would fill each role, because that mapping is all a variant decides.",
+  },
+  "src/routes/-components/variant-placeholder/variant-placeholder.tsx": {
+    doc: "States the role-to-tool mapping for an unwritten variant, and says plainly that the folder rules would not change.",
+  },
+  "src/shared/lib/variants.ts": {
+    note: "The architecture names roles; a variant names tools.",
+    doc: "Keeping the two apart is the point. Which store library to use is an implementation decision belonging to a variant, not a rule of the architecture — mixing them made the rules look less definite than they are.",
+    use: "Add a stack here and it appears in the header select.",
   },
 
   /* ── /projects ────────────────────────────────────────────────────────── */
@@ -274,69 +306,35 @@ export const sourceNotes: Record<string, SourceNote> = {
     ],
   },
 
-  /* ── /board — state that is neither on the server nor in the URL ──────── */
-
-  "src/routes/board": {
-    doc: "A scratch board. Nothing here is saved and nothing is addressable beyond the screen itself, which is what makes it a store case rather than a URL case.",
-    use: "Reach for this shape when state is complex, local and long-lived within one screen.",
-    rule: "§ 8",
-  },
-  "src/routes/board/board.store.ts": {
-    role: "store",
-    note: "The store sits beside the route, not in shared.",
-    doc: "Zustand for complex local state, colocated because nothing outside /board has any use for it. Cards are grouped by column so a move replaces exactly two arrays and the rest keep their identity. Server data in here would be a mistake — that belongs to the query layer.",
-    use: "Named .ts, not .tsx: the suffix carries the role, the extension still tells the truth about the contents. A dotted name is also how the router knows this is not an address — no URL is printed beside it in the tree, and clicking it only selects.",
-    rule: "§ 8 · § 3",
-  },
-  "src/routes/board/index.tsx": {
-    role: "page",
-    doc: "Composes the columns and owns nothing else. The page never holds the cards; each column subscribes for itself.",
-    use: "Compare with /projects: same page shape, different origin of state.",
-  },
-  "src/routes/board/-components": {
-    doc: "Pieces of the board, unusable anywhere else.",
-    use: "Same rule as everywhere: the dash keeps the folder out of routing.",
-    rule: "§ 3",
-  },
-  "src/routes/board/-components/board-column": {
-    doc: "One column of the board.",
-    use: "It reads the store directly, so adding a column costs one line in the page.",
-  },
-  "src/routes/board/-components/board-column/board-column.tsx": {
-    doc: "Subscribes to its own column instead of taking cards through props. A selector that built a new array on every call would loop forever under zustand v5 — the shape of the store is what makes the subscription cheap and stable.",
-    use: "This is the payoff of a store over context: precise subscriptions without splitting providers.",
-    rule: "§ 8",
-  },
-
   /* ── /wizard — state shared by one subtree ────────────────────────────── */
 
-  "src/routes/wizard": {
-    doc: "A three-step draft. The steps must agree on one object, but that object dies with the screen.",
+  "src/routes/react/wizard": {
+    doc: "A three-step draft. The steps must agree on one object, but that object dies with the screen — which is what makes context the right size and a store the wrong one.",
     use: "Reach for this shape when several components share state and none of them outlive the screen.",
     rule: "§ 8",
   },
-  "src/routes/wizard/wizard.context.tsx": {
+  "src/routes/react/wizard/wizard.context.tsx": {
     role: "context",
     note: "Native context, deliberately not a store.",
     doc: "A store would outlive the screen and a prop chain would thread through every step. Context is the size of the problem: scoped to a subtree, gone when it unmounts.",
     use: "Named .tsx because the provider is a component — the role is in the suffix, the extension describes the contents. Like every dotted name it answers no URL; only wizard/index.tsx does.",
     rule: "§ 8 · § 3",
   },
-  "src/routes/wizard/index.tsx": {
+  "src/routes/react/wizard/index.tsx": {
     role: "page",
     doc: "Mounts the provider and renders the current step. The step index is never passed down.",
     use: "Note where the provider sits: inside the page, not in app/providers, because nothing above this route needs it.",
     rule: "§ 2",
   },
-  "src/routes/wizard/-components": {
+  "src/routes/react/wizard/-components": {
     doc: "Pieces of the wizard, unusable anywhere else.",
     rule: "§ 3",
   },
-  "src/routes/wizard/-components/wizard-steps": {
+  "src/routes/react/wizard/-components/wizard-steps": {
     doc: "The step indicator.",
     use: "It reads context rather than props, which is why the page stays a composition.",
   },
-  "src/routes/wizard/-components/wizard-steps/wizard-steps.tsx": {
+  "src/routes/react/wizard/-components/wizard-steps/wizard-steps.tsx": {
     doc: "Reads the step from context and writes it back. The page above passes nothing.",
     use: "Compare with board-column: both avoid prop drilling, at two different scopes.",
     rule: "§ 8",
@@ -386,13 +384,13 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Shiki, loaded fine-grained: only the grammars this repository contains, only on first use, and with the JavaScript regex engine instead of the Oniguruma wasm.",
     use: "Add a grammar by naming it here; nothing else changes, because the language is picked from the file extension.",
   },
-  "src/shared/explorer": {
+  "src/shared/ui/explorer": {
     doc: "The explanatory overlay: the tree, the note panel, and the shared idea of which file is being pointed at.",
     use: "This is the only part of the app that is about the app. Everything else is an ordinary task tracker.",
   },
   [`${EXPLORER}/explorer.context.tsx`]: {
-    doc: "Which file is hovered or selected. It holds no route state: navigation is the router's job, and the selected file is derived from the URL.",
-    use: "Read activePath when you need to know what the user is pointing at; it already merges hover and selection.",
+    doc: "Two channels kept apart. The selection is persistent and derived from the URL, so any navigation — a link in the app, a click in the tree, the back button — moves it without a caller remembering to. The hover is transient and only previews. Revealing a branch is a consequence of the selection changing, not of the click that changed it.",
+    use: "Read selectedPath and hoveredPath when you paint something — two weights, never in competition. activePath merges them and exists for the note panel alone.",
     rule: "§ 8",
   },
   [`${EXPLORER}/explorer.tsx`]: {
