@@ -459,6 +459,13 @@ export const sourceNotes: Record<string, SourceNote> = {
   [`${UI}/tabs/tabs.tsx`]: {
     doc: "shadcn без изменений. CLI положил его в папку `@/` вне src/ из-за неверных алиасов — проверка границ такое больше не пропустит.",
   },
+  [`${UI}/resizable`]: {
+    doc: "Панели с перетаскиваемой границей от shadcn на react-resizable-panels.",
+    use: "Левый сайдбар с деревом тянется за границу; ширина запоминается в браузере через useDefaultLayout.",
+  },
+  [`${UI}/resizable/resizable.tsx`]: {
+    doc: "shadcn почти без изменений: CLI сломал импорт cn из-за `#` в алиасе, он поправлен руками.",
+  },
   [`${UI}/table`]: {
     doc: "Табличные примитивы shadcn.",
     use: "Не используйте их в маршрутах напрямую — идите через data-table.",

@@ -14,7 +14,7 @@ export function Explorer() {
   const { collapseAll } = useExplorer();
 
   return (
-    <aside className="flex min-h-0 flex-col border-e">
+    <aside className="flex h-full min-h-0 flex-col">
       <div className="flex h-12 shrink-0 items-center gap-4 px-5 text-xs text-muted-foreground">
         {LEGEND.map((item) => (
           <span key={item.label} className="flex items-center gap-1.5" title={item.hint}>

@@ -7,6 +7,7 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
+import { useDefaultLayout } from "react-resizable-panels";
 
 import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
 import { TOUR } from "#/shared/lib/tour.ts";
@@ -15,6 +16,11 @@ import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { Explorer } from "#/shared/ui/explorer/explorer.tsx";
 import { NotePanel } from "#/shared/ui/explorer/note-panel.tsx";
 import { TourCard } from "#/shared/ui/explorer/tour-card.tsx";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "#/shared/ui/resizable/resizable.tsx";
 import { SourceView } from "#/shared/ui/source-view/source-view.tsx";
 import { Tabs, TabsList, TabsTrigger } from "#/shared/ui/tabs/tabs.tsx";
 
@@ -27,6 +33,7 @@ const FILE = "src/routes/__root.tsx";
  */
 function RootLayout() {
   const { source } = Route.useSearch();
+  const { defaultLayout, onLayoutChanged } = useDefaultLayout({ id: "shell" });
 
   return (
     <div className="flex h-dvh flex-col bg-background">
@@ -34,17 +41,29 @@ function RootLayout() {
 
       {/* Source on the left, the running app in the middle, and the note about
           whatever is outlined on the right — next to the thing it describes.
-          The side columns are fixed so the app gets whatever room is left. */}
-      <div className="grid min-h-0 flex-1 grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)_22rem]">
-        <Explorer />
-        <main className="flex min-h-0 flex-col gap-4 p-6">
-          <TourCard />
-          <Preview source={source} />
-        </main>
-        <div className="hidden min-h-0 xl:flex">
-          <NotePanel />
-        </div>
-      </div>
+          The tree is resizable; its width is remembered per viewer. */}
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className="min-h-0 flex-1"
+        defaultLayout={defaultLayout}
+        onLayoutChanged={onLayoutChanged}
+      >
+        <ResizablePanel id="tree" defaultSize="19rem" minSize="14rem" maxSize="40%">
+          <Explorer />
+        </ResizablePanel>
+        <ResizableHandle className="transition-colors hover:bg-ring" />
+        <ResizablePanel id="app">
+          <div className="grid h-full min-h-0 grid-cols-[minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <main className="flex min-h-0 flex-col gap-4 p-6">
+              <TourCard />
+              <Preview source={source} />
+            </main>
+            <div className="hidden min-h-0 xl:flex">
+              <NotePanel />
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
