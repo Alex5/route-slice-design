@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { StatusFilter } from "#/routes/projects/$projectId/tasks/-components/filters/status-filter.tsx";
 import { TasksTable } from "#/routes/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
-import { tasks, TASK_STATUSES, type TaskStatus } from "#/shared/api/mock-data.ts";
+import { loadTasks } from "#/routes/projects/$projectId/tasks/tasks.loader.ts";
+import { useTasks } from "#/shared/api/hooks/tasks.ts";
+import { TASK_STATUSES, type TaskStatus } from "#/shared/api/mock-data.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Button } from "#/shared/ui/button/button.tsx";
 
@@ -11,6 +13,7 @@ const FILE = "src/routes/projects/$projectId/tasks/tasks.page.tsx";
 function TasksPage() {
   const { projectId } = Route.useParams();
   const { status } = Route.useSearch();
+  const tasks = useTasks();
 
   const rows = status ? tasks.filter((task) => task.status === status) : tasks;
 
@@ -36,5 +39,6 @@ export const Route = createFileRoute("/projects/$projectId/tasks/")({
     const status = search.status;
     return TASK_STATUSES.includes(status as TaskStatus) ? { status: status as TaskStatus } : {};
   },
+  loader: loadTasks,
   component: TasksPage,
 });

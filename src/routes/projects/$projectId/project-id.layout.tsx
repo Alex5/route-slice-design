@@ -1,7 +1,8 @@
-import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { ProjectTabs } from "#/routes/projects/$projectId/-components/project-tabs/project-tabs.tsx";
-import { findProject } from "#/shared/api/mock-data.ts";
+import { loadProject } from "#/routes/projects/$projectId/project-id.loader.ts";
+import { useProject } from "#/shared/api/hooks/projects.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 
 const FILE = "src/routes/projects/$projectId/project-id.layout.tsx";
@@ -12,7 +13,7 @@ const FILE = "src/routes/projects/$projectId/project-id.layout.tsx";
  */
 function ProjectLayout() {
   const { projectId } = Route.useParams();
-  const project = Route.useLoaderData();
+  const project = useProject({ projectId });
 
   return (
     <Boundary file={FILE} label="project-id.layout.tsx" className="space-y-6">
@@ -28,10 +29,6 @@ function ProjectLayout() {
 
 export const Route = createFileRoute("/projects/$projectId")({
   // Loads once for the whole subtree, before anything below renders.
-  loader: ({ params }) => {
-    const project = findProject(params.projectId);
-    if (!project) throw notFound();
-    return project;
-  },
+  loader: loadProject,
   component: ProjectLayout,
 });

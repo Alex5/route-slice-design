@@ -1,6 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { findTask, TASK_STATUS_LABEL } from "#/shared/api/mock-data.ts";
+import { loadTask } from "#/routes/projects/$projectId/tasks/$taskId/task-id.loader.ts";
+import { useTask } from "#/shared/api/hooks/tasks.ts";
+import { TASK_STATUS_LABEL } from "#/shared/api/mock-data.ts";
 import { Badge } from "#/shared/ui/badge/badge.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Button } from "#/shared/ui/button/button.tsx";
@@ -9,7 +11,7 @@ const FILE = "src/routes/projects/$projectId/tasks/$taskId/task-id.page.tsx";
 
 function TaskPage() {
   const { projectId, taskId } = Route.useParams();
-  const task = Route.useLoaderData();
+  const task = useTask({ taskId });
 
   return (
     <Boundary file={FILE} label="task-id.page.tsx" className="space-y-6">
@@ -33,10 +35,6 @@ function TaskPage() {
 }
 
 export const Route = createFileRoute("/projects/$projectId/tasks/$taskId/")({
-  loader: ({ params }) => {
-    const task = findTask(params.taskId);
-    if (!task) throw notFound();
-    return task;
-  },
+  loader: loadTask,
   component: TaskPage,
 });

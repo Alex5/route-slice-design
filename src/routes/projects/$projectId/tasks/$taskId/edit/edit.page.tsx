@@ -1,7 +1,8 @@
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
+import { loadTask } from "#/routes/projects/$projectId/tasks/$taskId/task-id.loader.ts";
 import { TaskFormFields } from "#/routes/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
-import { findTask } from "#/shared/api/mock-data.ts";
+import { useTask } from "#/shared/api/hooks/tasks.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";
 import { FormActions } from "#/shared/ui/form-actions/form-actions.tsx";
@@ -10,7 +11,7 @@ const FILE = "src/routes/projects/$projectId/tasks/$taskId/edit/edit.page.tsx";
 
 function EditTaskPage() {
   const { projectId, taskId } = Route.useParams();
-  const task = Route.useLoaderData();
+  const task = useTask({ taskId });
   const navigate = useNavigate();
 
   function close() {
@@ -34,10 +35,6 @@ function EditTaskPage() {
 }
 
 export const Route = createFileRoute("/projects/$projectId/tasks/$taskId/edit/")({
-  loader: ({ params }) => {
-    const task = findTask(params.taskId);
-    if (!task) throw notFound();
-    return task;
-  },
+  loader: loadTask,
   component: EditTaskPage,
 });

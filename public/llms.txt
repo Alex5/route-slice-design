@@ -21,32 +21,68 @@
 
 - Т1. Слайс — это маршрут. Новый экран = новая папка в `src/routes/` со страницей `<сегмент>.page.tsx`. Удаление экрана = удаление одной папки без остатков в других местах.
 - Т2. Зависимости только вниз: `app → routes → shared`. `shared/` не импортирует `routes/` и `app/`. `routes/` не импортирует `app/`. Весь код приложения — внутри `src/`.
-- Т3. Импорт внутри `routes/` — только от предков. Файл импортирует из `routes/` только `-components/` и role-файлы своих предков. Вышестоящий сегмент не импортирует ничего из нижних сегментов; соседняя ветка тоже запрещена. Нужно наверху — подними блок наверх. Файлы маршрутов (`*.page.tsx`, `*.layout.tsx`) не импортируются — к маршруту обращаются через `getRouteApi('/path')`.
-- Т5. Файл маршрута называется по своему сегменту: страница — `<сегмент>.page.tsx`, лэйаут — `<сегмент>.layout.tsx`, сегмент в kebab-case без `$`: `projects/projects.page.tsx`, `projects/$projectId/project-id.page.tsx`, `projects/$projectId/project-id.layout.tsx`. В каждой папке-сегменте обязательно есть `*.page.tsx` или `*.layout.tsx`; папка без них — не сегмент, это ошибка. `index.tsx` и `route.tsx` запрещены. Остальные роли — суффиксом: `*.context.tsx`, `*.store.ts`, `*.utils.ts`; компонент без суффикса. Папка с дефисом (`-components/`) исключена из роутинга. Компонент — папка в kebab-case с одноимённым файлом: `-components/task-form/task-form-fields.tsx`.
+- Т3. Импорт внутри `routes/` — только от предков. Файл импортирует из `routes/` только `-components/` и файлы сегментов-предков (`tasks.hooks.ts`, `wizard.context.tsx`). Вышестоящий сегмент не импортирует ничего из нижних сегментов; соседняя ветка тоже запрещена. Нужно наверху — подними блок наверх. Файлы маршрутов (`*.page.tsx`, `*.layout.tsx`) не импортируются — к маршруту обращаются через `getRouteApi('/path')`.
+- Т5. В папке-сегменте лежат только файлы `<сегмент>.<роль>.ts(x)`, сегмент в kebab-case без `$`. Роли: `page` (страница), `layout` (лэйаут), `loader` (серверные данные сегмента), `hooks` (все хуки сегмента в одном файле), `utils` (чистые функции), `context`, `store`. Примеры: `projects/projects.page.tsx`, `projects/$projectId/project-id.layout.tsx`, `tasks/tasks.hooks.ts`, `wizard/wizard.context.tsx`. В каждой папке-сегменте обязательно есть `*.page.tsx` или `*.layout.tsx`. `index.tsx` и `route.tsx` запрещены. Компоненты — в `-components/<имя>/<имя>.tsx`; `-components/` — единственная папка с дефисом: не создавай `-hooks/`, `-utils/`, `-types/` и подобные — хуки и утилиты идут в файлы сегмента.
 
 ### Размещение кода
 
-- Т4. Поднимать на втором использовании, не раньше. Первое использование — рядом, в `-components/` своего маршрута. Второе — в `-components/` ближайшего общего предка. В `shared/` — только код без доменных типов или сгенерированный API. Дублирование до второго использования — норма; не выноси «на будущее».
+- Т4. Поднимать на втором использовании, не раньше. Первое использование — рядом: компонент в `-components/` своего сегмента, хук в `<сегмент>.hooks.ts`. Второе — туда же у ближайшего общего предка. В `shared/` — только код без доменных типов или сгенерированный API. Дублирование до второго использования — норма; не выноси «на будущее».
 - Т6. Страница — оркестратор: только собирает блоки, без сетевой и бизнес-логики. Одно действие пользователя — одна папка (Command Component): триггер, состояние, запись, инвалидация. Родитель рендерит его без пропсов: `<AddProjectButton />`. Имя — глагол-сущность-роль.
 
 ### Данные и навигация
 
-- Т7. Состояние по происхождению: серверное — слой запросов и лоадер маршрута (`*.layout.tsx` грузит данные для поддерева один раз); разделяемое через ссылку (фильтры, открытая вкладка) — search-параметры с `validateSearch`; общее для одного поддерева — контекст в `*.context.tsx` рядом с маршрутом, провайдер внутри страницы; локальное — `useState`. Глобальный стор — только для состояния, которое действительно живёт дольше любого экрана.
+- Т7. Состояние по происхождению: серверное — `<сегмент>.loader.ts` (см. «Паттерн: лоадер маршрута»); разделяемое через ссылку (фильтры, открытая вкладка) — search-параметры с `validateSearch`; общее для одного поддерева — контекст в `*.context.tsx` рядом с маршрутом, провайдер внутри страницы; локальное — `useState`. Глобальный стор — только для состояния, которое действительно живёт дольше любого экрана.
 - Т8. Контракт — источник истины. Типы бэкенда генерируются (OpenAPI), руками не пишутся и не дублируются. Схемы форм расширяют сгенерированные типы. Компоненты не маппят DTO.
-- Т9. Одна сетевая граница. Только `shared/api` знает base URL, креды и форму ошибки, и только там ошибка превращается в сообщение пользователю. `fetch` в маршрутах запрещён.
+- Т9. Одна сетевая граница. Только `shared/api` знает base URL, креды, форму ошибки, ключи запросов и хуки к ним, и только там ошибка превращается в сообщение пользователю. `fetch` в маршрутах запрещён.
 - Т10. Типизированная навигация. Никаких строковых путей в JSX и `navigate`: только `<Link to="/projects/$projectId" params={…}>`. Переименование папки должно ломать сборку.
 
 ### Код — проверяется oxlint
 
 - Т11. Функции объявляй через `function`: компоненты, хелперы, обработчики внутри компонента — `function close() { … }`. Стрелка — только инлайн-коллбек: аргумент (`.map((x) => …)`, `useMemo(() => …)`), JSX-проп (`onClick={() => …}`), свойство объекта (`beforeLoad: () => …`). `const f = () => …` и `const f = function () {}` запрещены.
 
+## Паттерн: лоадер маршрута + queryClient.query
+
+Серверные данные — три слоя:
+
+1. `shared/api/hooks/<ресурс>.ts` — `queryOptions` и хуки (генерируются из OpenAPI):
+
+```ts
+export function taskQueryOptions({ taskId }: { taskId: string }) {
+  return queryOptions({ queryKey: ["tasks", taskId], queryFn: () => fetchTask(taskId) });
+}
+export function useTask({ taskId }: { taskId: string }) {
+  return useSuspenseQuery(taskQueryOptions({ taskId })).data;
+}
+```
+
+2. `<сегмент>.loader.ts` — лоадер маршрута кладёт данные в кэш до рендера:
+
+```ts
+export async function loadTask({ context, params }: { context: { queryClient: QueryClient }; params: { taskId: string } }) {
+  try {
+    return await context.queryClient.query({ ...taskQueryOptions({ taskId: params.taskId }), staleTime: "static" });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) throw notFound();
+    throw error;
+  }
+}
+```
+
+3. Страница подключает лоадер и вызывает хук: `loader: loadTask`, `const task = useTask({ taskId })`.
+
+- В маршрутах запрещены `useSuspenseQuery`, `useQuery`, `queryOptions`, ключи запросов и `fetch` — только хуки из `shared/api/hooks`.
+- `staleTime: "static"` в лоадере обязателен: берёт данные из кэша, если они есть. Не используй устаревший `ensureQueryData`.
+- `QueryClient` берётся из `context` лоадера (его передаёт роутер из `app/`).
+- API бросает `ApiError(404)`, лоадер переводит её в `notFound()`: 404-страницу решает маршрут.
+- Лоадер, нужный двум сегментам, поднимается в их общий сегмент (Т4).
+
 ## Куда положить код
 
 1. Нужен новый адрес → папка в `src/routes/` и `<сегмент>.page.tsx` в ней (Т1, Т5).
-2. Нужен одному маршруту → его `-components/` (Т4).
-3. Нужен второму маршруту → `-components/` ближайшего общего предка (Т4).
+2. Нужен одному маршруту → компонент в его `-components/`, хук в `<сегмент>.hooks.ts`, функция в `<сегмент>.utils.ts` (Т4, Т5).
+3. Нужен второму маршруту → туда же у ближайшего общего предка (Т4).
 4. Без доменных знаний и нужен в разных ветках → `shared/ui` или `shared/lib` (Т4).
-5. Ходит в сеть → через `shared/api` (Т9).
+5. Нужны данные с сервера → хук из `shared/api/hooks` на странице и `<сегмент>.loader.ts` для загрузки до рендера (Т7, Т9).
 6. Нужен один раз на всё приложение → `src/app/` (Т2).
 
 ## Пример дерева
@@ -60,19 +96,24 @@ src/
     projects/
       projects.page.tsx                          /projects
       -components/add-project-button/…           Command Component
+      projects.loader.ts                         запрос и лоадер списка
       $projectId/
-        project-id.layout.tsx                    лэйаут + лоадер проекта
+        project-id.loader.ts                     loadProject: кэш до рендера
+        project-id.layout.tsx                    лэйаут: loader: loadProject
         project-id.page.tsx                      /projects/$projectId
         tasks/
           tasks.page.tsx                         /projects/$projectId/tasks
+          tasks.hooks.ts                         все хуки сегмента tasks
           -components/task-form/…                поднят: нужен new/ и edit/
           new/new.page.tsx
+          $taskId/task-id.loader.ts              поднят: нужен карточке и edit/
           $taskId/task-id.page.tsx
           $taskId/edit/edit.page.tsx
     wizard/
       wizard.page.tsx
       wizard.context.tsx                         состояние поддерева
   shared/
+    api/hooks/                                   queryOptions + useProject, useTask…
     api/  lib/  ui/
 ```
 
@@ -83,11 +124,12 @@ src/
 - Не сливай две похожие страницы (создание/редактирование) через проп `mode` — общими делай блоки, сборку оставь дублированной.
 - Не создавай `index.tsx` / `route.tsx` — только `<сегмент>.page.tsx` / `<сегмент>.layout.tsx`.
 - Не импортируй в родительский сегмент блоки из дочерних — подними блок.
+- Не заводи папки `-hooks/`, `-utils/`, `-types/` — только `<сегмент>.hooks.ts`, `<сегмент>.utils.ts`.
 - Не передавай данные маршрута пропсами через уровни — читай `Route.useLoaderData()` / `useSearch()` там, где нужно.
 
 ## Ссылки
 
 - [README](https://github.com/Alex5/route-slice-design#readme): обоснование требований и таблица ролей по стекам
-- [Проверка архитектуры](https://github.com/Alex5/route-slice-design/blob/main/scripts/check-architecture.mjs): скрипт для CI, проверяет Т2, Т3, Т5
+- [Проверка архитектуры](https://github.com/Alex5/route-slice-design/blob/main/scripts/check-architecture.mjs): скрипт для CI, проверяет Т2, Т3, Т5, Т9
 - [Дерево маршрутов из папок](https://github.com/Alex5/route-slice-design/blob/main/vite.config.ts): как научить TanStack Router конвенции `*.page.tsx` / `*.layout.tsx`
 - [Демо](https://alex5.github.io/route-slice-design/): приложение рядом с деревом своих исходников

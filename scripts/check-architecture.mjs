@@ -5,9 +5,13 @@
 //     своих предков — их -components/ и role-файлы. Соседняя ветка и сегменты
 //     ниже по дереву — никогда. Файл маршрута не импортирует никто: к маршруту
 //     обращаются через getRouteApi.
-// Т5. Файлы маршрутов называются по своему сегменту: projects.page.tsx,
-//     project-id.layout.tsx. index.tsx и route.tsx запрещены. В каждой папке-
-//     сегменте есть *.page.tsx или *.layout.tsx.
+// Т5. Файлы сегмента называются по нему: projects.page.tsx,
+//     project-id.layout.tsx, tasks.loader.ts, tasks.hooks.ts, wizard.context.tsx. index.tsx и
+//     route.tsx запрещены. В каждой папке-сегменте есть *.page.tsx или
+//     *.layout.tsx. Папка с дефисом одна — -components/: хуки и утилиты
+//     живут в файлах сегмента, а не в папках, чтобы дерево показывало маршруты.
+// Т9. Запросы — только в shared/api: в routes/ нет useQuery, useSuspenseQuery,
+//     queryOptions, queryKey и fetch — страница вызывает хук из shared/api/hooks.
 //
 // Импорт с `?raw` — это чтение текста, а не зависимость от модуля, он не
 // проверяется (так /compare читает двух близнецов).
@@ -18,6 +22,11 @@ import { basename, dirname, join, normalize, relative } from "node:path";
 
 const IMPORT = /(?:from|import)\s*\(?\s*["']([^"']+)["']/g;
 const ROUTE_FILE = /\.(page|layout)\.tsx$/;
+/** Что может лежать прямо в папке-сегменте: <сегмент>.<роль>.ts(x). */
+/** То, чему место в shared/api/hooks, а не в маршрутах (Т9). */
+const QUERY_CODE = /\b(useQuery|useSuspenseQuery|queryOptions|queryKey|fetch)\s*[(:]/;
+
+const SEGMENT_ROLES = ["page", "layout", "loader", "context", "store", "hooks", "utils"];
 
 function layerOf(path) {
   if (path.startsWith("src/routes/")) return "routes";
@@ -77,18 +86,28 @@ function importProblem(from, specifier) {
 
 function nameProblem(path) {
   if (layerOf(path) !== "routes") return null;
-  if (path.split("/").some((segment) => segment.startsWith("-"))) return null;
+
+  const dash = path.split("/").find((segment) => segment.startsWith("-"));
+  if (dash && dash !== "-components") {
+    return `Т5: папка ${dash} не нужна — хуки и утилиты сегмента живут в <сегмент>.hooks.ts и <сегмент>.utils.ts`;
+  }
+  if (dash) return null;
 
   const name = basename(path);
-  const segment = basename(dirname(path));
+  if (path === "src/routes/__root.tsx") return null;
+
+  const segment = kebab(basename(dirname(path)));
+  const role = name.match(/^.+\.([a-z]+)\.tsx?$/)?.[1];
+  const expected = `${segment}.<${SEGMENT_ROLES.join("|")}>.ts(x)`;
 
   if (name === "index.tsx" || name === "route.tsx") {
-    return `Т5: ${name} запрещён — назовите файл ${kebab(segment)}.page.tsx или ${kebab(segment)}.layout.tsx`;
+    return `Т5: ${name} запрещён — назовите файл ${segment}.page.tsx или ${segment}.layout.tsx`;
   }
-
-  const role = name.match(ROUTE_FILE)?.[1];
-  if (role && name !== `${kebab(segment)}.${role}.tsx`) {
-    return `Т5: файл маршрута называется по сегменту — ${kebab(segment)}.${role}.tsx`;
+  if (!role || !SEGMENT_ROLES.includes(role)) {
+    return `Т5: в папке сегмента лежат только файлы ${expected}; компоненты — в -components/`;
+  }
+  if (!name.startsWith(`${segment}.${role}.`)) {
+    return `Т5: файл сегмента называется по нему — ${segment}.${role}${name.slice(name.lastIndexOf("."))}`;
   }
 
   return null;
@@ -120,7 +139,14 @@ for (const absolute of files(join(root, "src"))) {
   const naming = nameProblem(from);
   if (naming) found.push(`${from}\n  ${naming}`);
 
-  for (const [, specifier] of readFileSync(absolute, "utf8").matchAll(IMPORT)) {
+  const source = readFileSync(absolute, "utf8");
+
+  const query = layerOf(from) === "routes" && source.match(QUERY_CODE)?.[1];
+  if (query) {
+    found.push(`${from}\n  Т9: ${query} в маршруте — вынесите запрос в shared/api/hooks и вызывайте хук`);
+  }
+
+  for (const [, specifier] of source.matchAll(IMPORT)) {
     const problem = importProblem(from, specifier);
     if (problem) found.push(`${from}\n  → ${specifier}\n  ${problem}`);
   }

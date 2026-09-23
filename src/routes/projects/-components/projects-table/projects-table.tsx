@@ -1,6 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { projects, type Project } from "#/shared/api/mock-data.ts";
+import type { Project } from "#/shared/api/mock-data.ts";
+
+import { useProjects } from "#/shared/api/hooks/projects.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { DataTable, type Column } from "#/shared/ui/data-table/data-table.tsx";
 import { Skeleton } from "#/shared/ui/skeleton/skeleton.tsx";
@@ -33,6 +35,7 @@ const columns: Column<Project>[] = [
  */
 export function ProjectsTable() {
   const navigate = useNavigate();
+  const projects = useProjects();
 
   return (
     <Boundary file={FILE} label="projects-table">

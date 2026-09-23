@@ -1,5 +1,7 @@
+import type { QueryClient } from "@tanstack/react-query";
+
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   Link,
   Outlet,
   redirect,
@@ -128,27 +130,28 @@ function Preview({ source }: { source?: string }) {
 }
 
 /**
- * Reached by typing a URL nothing answers — including the tempting
- * `/board/board.store`, which looks like a route but is a role file.
+ * Reached by a URL nothing answers, and by a loader throwing notFound — try
+ * /projects/apollo/tasks/TF-999, or the tempting /wizard/wizard.context.
  */
 function NotFound() {
   return (
-    <div className="space-y-3 rounded-lg border border-dashed border-white/10 p-6">
-      <h2 className="text-sm font-semibold">Nothing answers this URL</h2>
-      <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
-        Only folders under <code>routes/</code> become addresses. A folder starting with a dash is
-        excluded, and a file carrying a role in a dot suffix — <code>board.store.ts</code>,{" "}
-        <code>wizard.context.tsx</code> — is not a route either. The tree on the left prints a URL
-        beside the files that have one.
+    <div className="max-w-prose space-y-4">
+      <h2 className="text-lg font-semibold tracking-tight">По этому адресу ничего нет</h2>
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        Адресом становится только папка в <code>routes/</code> со страницей <code>*.page.tsx</code>.
+        Папка с дефисом исключена из роутинга, а файлы вроде <code>wizard.context.tsx</code> — не
+        маршруты. Если адрес правильный, значит, лоадер не нашёл запись: неизвестный id превращается
+        в эту страницу ещё до рендера.
       </p>
-      <Link to="/projects" className="inline-block text-xs text-layer-routes hover:underline">
-        Back to /projects
+      <Link to="/projects" className="inline-block text-sm text-layer-routes hover:underline">
+        Вернуться к /projects
       </Link>
     </div>
   );
 }
 
-export const Route = createRootRoute({
+/** What every loader receives: the query cache, handed down by app/router.tsx. */
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // A file being read is part of the address, so the view can be linked to —
   // the same rule the task filter follows.
   validateSearch: (search: Record<string, unknown>) => {

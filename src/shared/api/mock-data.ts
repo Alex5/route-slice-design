@@ -1,7 +1,8 @@
 /**
  * Static stand-in for the API. A real app would generate this layer from an
- * OpenAPI contract (§ 6); the shapes here play the part of those generated
- * types so the routes above can be written the way the spec expects.
+ * OpenAPI contract (Т8); the shapes here play the part of those generated
+ * types, and the fetchers are async like real network calls (Т9), so the
+ * loaders above are written exactly as they would be against a server.
  */
 
 export type TaskStatus = "open" | "in_progress" | "done";
@@ -27,12 +28,12 @@ export interface Task {
   assignee: string;
 }
 
-export const projects: Project[] = [
+const projects: Project[] = [
   { id: "apollo", name: "Apollo", openTasks: 12 },
   { id: "hermes", name: "Hermes", openTasks: 3 },
 ];
 
-export const tasks: Task[] = [
+const tasks: Task[] = [
   {
     id: "TF-142",
     title: "Таблица задач теряет фильтр после перезагрузки",
@@ -59,10 +60,32 @@ export const tasks: Task[] = [
   },
 ];
 
-export function findProject(id: string) {
-  return projects.find((project) => project.id === id);
+/** What the client throws for a non-2xx response; `status` is the HTTP code. */
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
 }
 
-export function findTask(id: string) {
-  return tasks.find((task) => task.id === id);
+export async function fetchProjects() {
+  return projects;
+}
+
+export async function fetchProject(projectId: string) {
+  const project = projects.find((candidate) => candidate.id === projectId);
+  if (!project) throw new ApiError(404, `Project ${projectId} not found`);
+  return project;
+}
+
+export async function fetchTasks() {
+  return tasks;
+}
+
+export async function fetchTask(taskId: string) {
+  const task = tasks.find((candidate) => candidate.id === taskId);
+  if (!task) throw new ApiError(404, `Task ${taskId} not found`);
+  return task;
 }

@@ -29,7 +29,7 @@ export const TOUR = [
   {
     title: "Имя файла говорит, что это",
     rule: "Т5",
-    text: "Сегмент $projectId — папка с двумя файлами: project-id.layout.tsx грузит проект и держит вкладки, project-id.page.tsx — содержимое. Имена по сегменту, index.tsx нет: по вкладкам редактора видно, что открыто. В каждой папке-сегменте есть страница или лэйаут.",
+    text: "Сегмент $projectId — папка с тремя файлами: project-id.loader.ts грузит проект, project-id.layout.tsx держит вкладки, project-id.page.tsx — содержимое. Имена по сегменту, index.tsx нет: по вкладкам редактора видно, что открыто. В каждой папке-сегменте есть страница или лэйаут.",
     focus: `${R}/$projectId/project-id.layout.tsx`,
     link: linkOptions({ to: "/projects/$projectId", params: { projectId: "apollo" }, search: {} }),
   },

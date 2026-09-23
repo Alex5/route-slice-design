@@ -1,6 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 
-import { WithProviders } from "#/app/providers/with-providers.tsx";
+import { queryClient, WithProviders } from "#/app/providers/with-providers.tsx";
 import { routeTree } from "#/routeTree.gen.ts";
 
 /**
@@ -12,7 +12,12 @@ export const router = createRouter({
   routeTree,
   // Vite's BASE_URL carries a trailing slash; the router wants none.
   basepath: import.meta.env.BASE_URL.replace(/\/$/, ""),
+  // Loaders get the query cache from here, so routes never import app (Т2).
+  context: { queryClient },
   defaultPreload: "intent",
+  // The query cache decides freshness; the router must not keep its own copy
+  // of loader results on top of it.
+  defaultPreloadStaleTime: 0,
   scrollRestoration: true,
   // Провайдеры подключает app, а не __root: routes не импортирует app (Т2).
   // InnerWrap, а не Wrap — провайдерам нужны хуки роутера.
