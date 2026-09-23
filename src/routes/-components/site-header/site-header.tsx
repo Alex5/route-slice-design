@@ -8,8 +8,14 @@ export function SiteHeader() {
     <header className="flex h-16 shrink-0 items-center gap-8 border-b px-6">
       {/* The accent on "slice" is the same green the tree uses for the routes
           layer, so the wordmark names the thing it is about. */}
-      <Link to="/projects" className="text-base font-semibold lowercase tracking-tight">
-        route <span className="text-layer-routes">slice</span> design
+      <Link
+        to="/projects"
+        className="flex items-center gap-2.5 text-base font-semibold lowercase tracking-tight"
+      >
+        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-6" />
+        <span>
+          route-<span className="text-layer-routes">slice</span>-design
+        </span>
       </Link>
 
       <nav className="ms-auto flex items-center gap-1">

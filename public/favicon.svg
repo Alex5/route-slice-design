@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The three layers — app, routes, shared, in the tree's colours — cut
+       through by the URL slash: an app sliced along its routes. -->
+  <rect width="32" height="32" rx="8" fill="#161616"/>
+  <rect x="6" y="8" width="20" height="4" rx="2" fill="#b58cf5"/>
+  <rect x="6" y="14" width="20" height="4" rx="2" fill="#3ddcaa"/>
+  <rect x="6" y="20" width="20" height="4" rx="2" fill="#5b9cf8"/>
+  <path d="M12.5 28 19.5 4" stroke="#161616" stroke-width="3"/>
+</svg>

@@ -1,4 +1,4 @@
-# route slice design
+# route-slice-design
 
 Feature-Sliced Design режет приложение по фичам. Здесь его режут по маршрутам:
 **слайс — это URL**. Где лежит код, следует из адресной строки, а не из
@@ -218,7 +218,7 @@ https://alex5.github.io/route-slice-design/llms.txt
 Проверить сборку как на Pages локально:
 
 ```bash
-BASE_PATH=/rsd/ pnpm build && BASE_PATH=/rsd/ pnpm preview
+BASE_PATH=/route-slice-design/ pnpm build && BASE_PATH=/route-slice-design/ pnpm preview
 ```
 
 ## Структура
