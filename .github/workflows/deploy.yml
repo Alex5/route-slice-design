@@ -30,13 +30,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # oxlint (function вместо стрелок) и правила архитектуры Т2, Т3, Т5.
+      - run: pnpm lint
+
       - run: pnpm build
         env:
           # A project site is served from /<repo>/. Delete this line if the
           # repository is named <user>.github.io, which is served from the root.
           BASE_PATH: /${{ github.event.repository.name }}/
-          # Fills in the header's source link, so no URL is hardcoded.
-          VITE_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
 
       - uses: actions/configure-pages@v5
 

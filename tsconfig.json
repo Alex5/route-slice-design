@@ -16,8 +16,7 @@
     "noUnusedParameters": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "#/*": ["./src/*"],
-      "#package": ["./package.json"]
+      "#/*": ["./src/*"]
     }
   },
   "include": ["src", "vite.config.ts"]

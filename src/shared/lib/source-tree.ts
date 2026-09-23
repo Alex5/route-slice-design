@@ -9,11 +9,11 @@
 export type Layer = "app" | "routes" | "shared";
 
 export interface SourceNode {
-  /** Repository-relative path, e.g. `src/routes/react/projects/index.tsx`. */
+  /** Repository-relative path, e.g. `src/routes/projects/projects.page.tsx`. */
   id: string;
   name: string;
   layer: Layer;
-  /** The URL this file is reachable at, when it is a route file. */
+  /** The URL this file answers on, or a segment folder answers on through its page or layout. */
   route: string | null;
   children?: SourceNode[];
 }
@@ -32,33 +32,22 @@ function layerOf(path: string): Layer {
   return "app";
 }
 
+/** A route file carries its role in the suffix (Т5); every other file is not a route. */
+const ROUTE_FILE = /\.(page|layout)\.tsx$/;
+
 /**
- * Derives the URL a route file answers on, mirroring the rules the generator
- * itself applies:
- *
- * - `-`-prefixed folders are excluded from routing;
- * - `__root` is the shell and answers no URL of its own;
- * - `index` and `route` drop out of the path;
- * - a role file keeps its role in a dot suffix (`board.store.ts`,
- *   `wizard.context.tsx`), and a dotted name is not a route.
- *
- * The last rule is the one worth stating out loud: without it this function
- * would advertise `/board/board.store`, a URL the router has never heard of.
+ * Derives the URL a route file answers on, mirroring the tree vite.config.ts
+ * describes to the generator: a `*.page.tsx` or `*.layout.tsx` answers on its
+ * folder, a `-`-prefixed folder is excluded from routing, and anything else —
+ * `wizard.context.tsx`, `__root.tsx` — answers no URL of its own.
  */
 export function routeForPath(path: string): string | null {
-  if (!path.startsWith("src/routes/")) return null;
+  if (!path.startsWith("src/routes/") || !ROUTE_FILE.test(path)) return null;
 
-  const relative = path.slice("src/routes/".length);
-  const segments = relative.replace(/\.tsx?$/, "").split("/");
-  const name = segments.at(-1) ?? "";
+  const folders = path.slice("src/routes/".length).split("/").slice(0, -1);
+  if (folders.some((segment) => segment.startsWith("-"))) return null;
 
-  if (segments.some((segment) => segment.startsWith("-"))) return null;
-  if (name === "__root") return null;
-  if (name.includes(".")) return null;
-  if (name === "index" || name === "route") segments.pop();
-
-  const url = `/${segments.map((segment) => PARAMS[segment] ?? segment).join("/")}`;
-  return url === "/" ? "/" : url.replace(/\/$/, "");
+  return `/${folders.map((segment) => PARAMS[segment] ?? segment).join("/")}`;
 }
 
 /**
@@ -69,15 +58,22 @@ export function routeForPath(path: string): string | null {
  * parameter values baked into `PARAMS` — `/tasks/TF-138` matched nothing. A
  * route id carries the pattern instead of a substitution, so every parameter
  * value lands on the same file, and a deployment base path cannot confuse it.
+ * An id ending in a slash is the folder's page, any other is its layout.
  */
 export function pathForRouteId(routeId: string): string | null {
-  const base = `src/routes${routeId}`;
+  const dir = `src/routes${routeId.replace(/\/$/, "")}`;
+  const role = routeId.endsWith("/") ? ".page.tsx" : ".layout.tsx";
 
-  const candidates = routeId.endsWith("/")
-    ? [`${base}index.tsx`]
-    : [`${base}/route.tsx`, `${base}.tsx`];
-
-  return candidates.find((candidate) => nodeByPath.has(candidate)) ?? null;
+  for (const path of nodeByPath.keys()) {
+    if (
+      path.startsWith(`${dir}/`) &&
+      !path.slice(dir.length + 1).includes("/") &&
+      path.endsWith(role)
+    ) {
+      return path;
+    }
+  }
+  return null;
 }
 
 function insert(root: SourceNode[], path: string) {
@@ -115,7 +111,14 @@ function sortTree(nodes: SourceNode[]): SourceNode[] {
       if (aDir !== bDir) return aDir ? -1 : 1;
       return a.name.localeCompare(b.name);
     })
-    .map((node) => (node.children ? { ...node, children: sortTree(node.children) } : node));
+    .map((node) => {
+      if (!node.children) return node;
+      const children = sortTree(node.children);
+      // A segment folder answers on the URL of its page or layout (Т5), so
+      // clicking the folder goes where clicking that file would.
+      const route = children.find((child) => !child.children && child.route)?.route ?? null;
+      return { ...node, children, route };
+    });
 }
 
 // Vite leaves the file containing the glob out of its own results, so this

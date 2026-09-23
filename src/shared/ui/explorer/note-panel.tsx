@@ -1,12 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Code2, CornerDownRight, Lightbulb } from "lucide-react";
 
-import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { hasSource } from "#/shared/lib/source-code.ts";
 import { sourceNotes } from "#/shared/lib/source-notes.ts";
 import { nodeByPath, type Layer } from "#/shared/lib/source-tree.ts";
 import { cn } from "#/shared/lib/utils.ts";
 import { Badge } from "#/shared/ui/badge/badge.tsx";
+import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 
 const LAYER_BADGE: Record<Layer, string> = {
   app: "bg-layer-app/15 text-layer-app",
@@ -35,68 +35,53 @@ export function NotePanel() {
 
   if (!node) {
     return (
-      <aside className="flex-1 min-h-0 overflow-y-auto border-s bg-card/40 p-4 text-xs leading-relaxed text-muted-foreground">
-        Hover a file to outline what it renders. Click it to go to its URL.
-        <br />
-        <br />
-        Hover a box in the app to find the file behind it.
+      <aside className="flex-1 min-h-0 space-y-3 overflow-y-auto border-s p-6 text-sm leading-relaxed text-muted-foreground">
+        <p>Наведите на файл — подсветится то, что он рендерит. Кликните — откроется его URL.</p>
+        <p>Наведите на рамку в приложении — найдёте файл за ней.</p>
       </aside>
     );
   }
 
   return (
-    <aside className="flex-1 min-h-0 space-y-3 overflow-y-auto border-s bg-card/40 p-4">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge className={cn("border-transparent", LAYER_BADGE[node.layer])}>{node.layer}</Badge>
-        {note?.role && <Badge variant="outline">{note.role}</Badge>}
-        {note?.rule && <Badge variant="secondary">{note.rule}</Badge>}
-      </div>
-
-      <div className="break-all font-mono text-[11px] leading-snug text-muted-foreground">
-        {node.id}
-      </div>
-
-      {node.route && (
-        <div className="flex items-center gap-1.5 font-mono text-[11px] text-layer-routes">
-          <CornerDownRight className="size-3" />
-          {node.route}
+    <aside className="flex-1 min-h-0 space-y-6 overflow-y-auto border-s p-6">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge className={cn("border-transparent", LAYER_BADGE[node.layer])}>{node.layer}</Badge>
+          {note?.role && <Badge variant="outline">{note.role}</Badge>}
+          {note?.rule && <Badge variant="secondary">{note.rule}</Badge>}
         </div>
-      )}
 
-      {hasSource(node.id) && (
-        <button
-          type="button"
-          onClick={() =>
-            navigate({ to: ".", search: (previous) => ({ ...previous, source: node.id }) })
-          }
-          className="flex w-full items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs transition-colors hover:bg-accent"
-        >
-          <Code2 className="size-3.5" />
-          Read the source
-        </button>
-      )}
+        <div className="break-all font-mono text-xs leading-snug text-muted-foreground">
+          {node.id}
+        </div>
+
+        {node.route && (
+          <div className="flex items-center gap-1.5 font-mono text-xs text-layer-routes">
+            <CornerDownRight className="size-3" />
+            {node.route}
+          </div>
+        )}
+      </div>
 
       {note?.note && (
-        <div className="flex gap-2 rounded-md border border-layer-app/30 bg-layer-app/10 px-2.5 py-2">
-          <Lightbulb className="mt-px size-3.5 shrink-0 text-layer-app" />
-          <span className="text-xs font-medium leading-relaxed">{note.note}</span>
+        <div className="flex gap-2.5 rounded-lg bg-layer-app/10 px-3.5 py-3">
+          <Lightbulb className="mt-0.5 size-4 shrink-0 text-layer-app" />
+          <span className="text-sm font-medium leading-relaxed">{note.note}</span>
         </div>
       )}
 
-      {note?.doc && <p className="text-xs leading-relaxed">{note.doc}</p>}
+      {note?.doc && <p className="text-sm leading-relaxed">{note.doc}</p>}
 
       {note?.use && (
-        <div className="space-y-1 border-s-2 border-border ps-2.5">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            Working on it
-          </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">{note.use}</p>
+        <div className="space-y-1.5">
+          <div className="text-xs font-medium text-muted-foreground">Как с этим работать</div>
+          <p className="text-sm leading-relaxed text-muted-foreground">{note.use}</p>
         </div>
       )}
 
       {note?.composedOf && (
-        <div className="space-y-1">
-          <div className="text-[11px] font-medium text-muted-foreground">Composed of</div>
+        <div className="space-y-1.5">
+          <div className="text-xs font-medium text-muted-foreground">Из чего собран</div>
           {note.composedOf.map((path) => {
             const block = nodeByPath.get(path);
             if (!block) return null;
@@ -107,7 +92,7 @@ export function NotePanel() {
                 onClick={() => select(path)}
                 onMouseEnter={() => hover(path)}
                 onMouseLeave={() => hover(null)}
-                className="flex w-full items-center gap-1.5 rounded px-1 py-0.5 text-start text-[11px] transition-colors hover:bg-accent"
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-start text-xs transition-colors hover:bg-accent"
               >
                 <span
                   className={cn(
@@ -116,9 +101,7 @@ export function NotePanel() {
                   )}
                 />
                 <span className="truncate font-mono text-muted-foreground">{block.name}</span>
-                <span className="ms-auto shrink-0 text-[10px] text-muted-foreground/70">
-                  {block.layer}
-                </span>
+                <span className="ms-auto shrink-0 text-muted-foreground/70">{block.layer}</span>
               </button>
             );
           })}
@@ -126,7 +109,22 @@ export function NotePanel() {
       )}
 
       {!note && (
-        <p className="text-xs leading-relaxed text-muted-foreground">No note for this file yet.</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          Для этого файла заметки пока нет.
+        </p>
+      )}
+
+      {hasSource(node.id) && (
+        <button
+          type="button"
+          onClick={() =>
+            navigate({ to: ".", search: (previous) => ({ ...previous, source: node.id }) })
+          }
+          className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Code2 className="size-4" />
+          Открыть исходник
+        </button>
       )}
     </aside>
   );

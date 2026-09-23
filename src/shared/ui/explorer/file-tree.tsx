@@ -1,9 +1,9 @@
 import { FileCode2, FileText, Folder, FolderOpen } from "lucide-react";
 import { useEffect } from "react";
 
-import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { isRowActive, sourceTree, type Layer, type SourceNode } from "#/shared/lib/source-tree.ts";
 import { cn } from "#/shared/lib/utils.ts";
+import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import {
   createTreeCollection,
   TreeViewBranch,
@@ -114,9 +114,9 @@ export function FileTree() {
       onExpandedChange={(details) => setExpanded(details.expandedValue)}
       selectedValue={selectedPath ? [selectedPath] : []}
       className="text-sm"
-      aria-label="Source files of this application"
+      aria-label="Исходники этого приложения"
     >
-      <TreeViewTree className="space-y-px">
+      <TreeViewTree className="space-y-0.5">
         {sourceTree.map((node, index) => (
           <TreeNode key={node.id} node={node} indexPath={[index]} />
         ))}

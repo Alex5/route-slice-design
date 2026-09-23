@@ -8,7 +8,9 @@
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    "func-style": ["error", "declaration"]
+  },
   "env": {
     "builtin": true
   }

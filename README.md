@@ -1,158 +1,247 @@
 # route slice design
 
-Feature-Sliced Design cuts an application across features. This cuts it along
-routes: **the slice is a URL**. Where code lives follows from the address bar,
-not from a taxonomy someone has to remember.
+Feature-Sliced Design режет приложение по фичам. Здесь его режут по маршрутам:
+**слайс — это URL**. Где лежит код, следует из адресной строки, а не из
+таксономии, которую надо помнить.
 
-This repository is the argument and the evidence at once — a small app built to
-the rule, rendered beside a tree of its own source.
+Репозиторий — одновременно аргумент и доказательство: небольшое приложение,
+написанное по правилам, показано рядом с деревом собственных исходников.
 
 ```bash
 pnpm install && pnpm dev
 ```
 
-## The pillars
+## С чего начать
 
-**1. The slice is a route.** A folder under `routes/` is a URL segment and a
-module boundary at the same time. Deleting a screen is deleting one folder, with
-nothing left behind anywhere else.
+1. **Пройдите экскурсию.** Кнопка «С чего начать» в шапке демо
+   ([онлайн](https://alex5.github.io/route-slice-design/projects?tour=0) или
+   после `pnpm dev`). Восемь шагов: каждый открывает экран, выделяет файл за ним
+   и объясняет одно требование на живом коде. Минут пять.
+2. **Прочитайте [требования](#требования).** Одиннадцать правил, у каждого
+   указано, чем оно проверяется.
+3. **Держите под рукой «[Куда положить код](#куда-положить-код)».** Шесть
+   вопросов, которые отвечают на «а это куда?».
+4. **Подключите [llms.txt](#подключение-к-ии-ассистенту)** к своему ассистенту и
+   скопируйте проверку архитектуры в CI.
 
-**2. Role by suffix.** `*.loader.ts`, `*.store.ts`, `*.context.tsx`,
-`*.utils.ts`. A component is the default and needs no suffix; only what differs
-from it gets named.
+## Требования
 
-**3. Three layers, dependencies downward.** `app/` composes, `routes/` owns the
-URL tree, `shared/` holds what belongs to no single route. `shared/` never
-imports from `routes/`, and no route branch imports from another. This is the
-one invariant worth enforcing in CI.
+Одиннадцать требований — и всё. Те, чьё нарушение ломает архитектуру,
+проверяются автоматически: `pnpm lint` запускает oxlint и
+[scripts/check-architecture.mjs](scripts/check-architecture.mjs), CI падает на
+любом нарушении.
 
-**4. Command Component.** One user action is one folder: trigger, state, write,
-invalidation. The parent renders `<AddProjectButton />` with no props. Adding an
-action touches no existing file but one line of JSX.
+### Границы
 
-**5. Lift on the second use, not before.** First use: in place. Second use: the
-nearest ancestor both callers share. Third, or from another branch: `shared/`.
-Duplication before that point is correct, not debt.
+| | Требование | Проверка |
+|---|---|---|
+| **Т1** | **Слайс — это маршрут.** Папка в `routes/` — одновременно сегмент URL и граница модуля. Удалить экран — удалить одну папку, без остатков где-либо ещё. | структура |
+| **Т2** | **Три слоя, зависимости только вниз:** `app → routes → shared`. `shared/` не импортирует `routes/` и `app/`; `routes/` не импортирует `app/`. Код приложения — только в `src/`. | check-architecture |
+| **Т3** | **Импорт внутри `routes/` — только от предков.** Файл берёт из `routes/` только `-components/` и role-файлы своих предков. Вышестоящий сегмент не импортирует ничего из нижних, соседняя ветка — тоже. Файл маршрута не импортирует никто — к маршруту обращаются через `getRouteApi`. | check-architecture |
 
-**6. State by origin, not by convenience.** Server, in the URL, shared by one
-subtree, trivially local — four different origins, four different homes. The
-architecture names the origin; **the variant names the tool**. Which query
-library or store fills a role is an implementation decision and belongs to a
-stack, not to the rules.
+### Размещение и имена
 
-**7. The contract is the source of truth.** Backend types are generated, never
-written by hand; form schemas extend the generated ones rather than restating
-them. A view never maps a DTO.
+| | Требование | Проверка |
+|---|---|---|
+| **Т4** | **Поднимать на втором использовании, не раньше.** Первое использование — на месте. Второе — в `-components/` ближайшего общего предка. В `shared/` попадает только то, что не знает домена (`ui`, `lib`), и сгенерированный контракт (`api`). Дублирование до этого момента — правильно, а не долг. | ревью |
+| **Т5** | **Роль — суффиксом, маршрут — по имени сегмента.** Страница — `<сегмент>.page.tsx`, лэйаут — `<сегмент>.layout.tsx`: `projects.page.tsx`, `project-id.page.tsx` для `$projectId`. В каждой папке-сегменте есть страница или лэйаут — папка без них не сегмент. `index.tsx` и `route.tsx` запрещены. Остальные роли — `*.context.tsx`, `*.store.ts`, `*.utils.ts`; компонент без суффикса. Папка с дефисом (`-components`) исключена из роутинга. | check-architecture |
+| **Т6** | **Страница — оркестратор, действие — Command Component.** Страница только собирает блоки. Одно действие пользователя — одна папка: триггер, состояние, запись, инвалидация. Родитель рендерит `<AddProjectButton />` без пропсов. | ревью |
 
-**8. One network boundary.** `shared/client` is the only place that knows the
-base URL, credentials and the shape of an error — and the only place an error
-becomes something on screen.
+### Данные и навигация
 
-**9. Typed navigation.** No string paths in JSX. Renaming a folder breaks the
-build, not the app.
+| | Требование | Проверка |
+|---|---|---|
+| **Т7** | **Состояние — по происхождению.** С сервера — слой запросов и лоадеры маршрутов. Разделяемое через ссылку — search-параметры URL. Общее для одного поддерева — контекст рядом с маршрутом. Локальное — `useState`. Архитектура называет происхождение, **инструмент выбирает стек**. | ревью |
+| **Т8** | **Контракт — источник истины.** Типы бэкенда генерируются, а не пишутся руками; схемы форм расширяют сгенерированные типы. View не маппит DTO. | ревью |
+| **Т9** | **Одна сетевая граница.** `shared/api` — единственное место, которое знает base URL, креды и форму ошибки, и единственное, где ошибка превращается в сообщение на экране. | ревью |
+| **Т10** | **Типизированная навигация.** Ни одного строкового пути в JSX. Переименование папки ломает сборку, а не приложение. | `tsc` |
 
-## What this repository shows
+### Код
 
-One application, written to the rules, in a stack you pick from the header.
+| | Требование | Проверка |
+|---|---|---|
+| **Т11** | **Функции — `function`, стрелки — только в коллбеках.** Компоненты, хелперы, обработчики внутри компонента — `function name() {}`. Стрелка допустима только инлайн: аргумент (`.map`, `useMemo`), JSX-проп (`onClick`), свойство объекта (`beforeLoad`). `const f = () => …` запрещено. | oxlint `func-style` |
 
-| Variant | Routing | Server state | Client state | |
-|---|---|---|---|---|
-| **React** | TanStack Router | React Query | native context | built |
-| Vue | Vue Router | TanStack Query | Pinia | not written yet |
-| Angular | Angular Router | HttpClient | signals | not written yet |
+## Границы
 
-The variant is the first URL segment, so switching stacks is navigation like
-everything else. The folder rules do not change between variants — only what
-fills each role does. That separation is the answer to a fair objection: a store
-library appearing among the pillars made the architecture look less definite
-than it is.
+```
+app/        корень композиции: роутер, провайдеры      → может импортировать всё
+routes/     дерево URL                                  → routes (только предки) + shared
+shared/     то, что не принадлежит маршруту             → только shared
+```
 
-## Reading it
+Что можно импортировать из файла
+`routes/projects/$projectId/tasks/new/new.page.tsx`:
 
-The middle column is the app running for real. Every dashed box is one file's
-slice of the output, labelled with that file; nesting of boxes is nesting of
-layouts.
+| Импорт | | Почему |
+|---|---|---|
+| `routes/projects/$projectId/tasks/-components/task-form/…` | ✅ | `tasks/` — предок |
+| `routes/projects/-components/projects-table/…` | ✅ | `projects/` — предок |
+| `routes/projects/$projectId/tasks/$taskId/-components/…` | ❌ Т3 | `$taskId/` — не предок, а сосед |
+| `routes/wizard/wizard.context.tsx` | ❌ Т3 | `wizard/` — соседняя ветка |
+| `routes/projects/$projectId/tasks/tasks.page.tsx` | ❌ Т3 | файл маршрута — не блок; к маршруту обращаются через `getRouteApi` |
+| `shared/ui/card/card.tsx` | ✅ | нижний слой |
+| `app/providers/…` | ❌ Т2 | верхний слой |
 
-Selection is persistent, hover only previews — the two never compete for the
-same highlight:
+И в обратную сторону: `projects/projects.page.tsx` не может импортировать
+`projects/$projectId/-components/project-tabs` — вышестоящий сегмент ничего не
+берёт снизу (Т3). Понадобилось наверху — поднимите блок наверх.
 
-- click a file on the left — the browser navigates to the URL it answers, and
-  the file stays selected
-- navigate anywhere in the app — the tree reveals the branch and selects the
-  file that renders it
-- hover a file — its box is outlined at the lighter weight, and the selection
-  stays lit
-- hover a folder — every box inside it is outlined at once
-- hover a box in the app — its file lights up in the tree, same lighter weight
-- **Preview / Code** in the preview header — what the route renders, or the file
-  that renders it. Clicking a file that answers no URL (`wizard.context.tsx`,
-  `*.loader.ts`) opens its code straight away, since there is nothing to preview.
-  The open file is addressable as `?source=<path>`
-- **Compare twins** — `/compare` puts the two task forms side by side and
-  measures how alike they are
+Импорт с `?raw` — это чтение текста, а не зависимость от модуля, и не
+проверяется (так `/compare` читает двух близнецов).
 
-Nothing on screen is a drawing of the code. The tree is read from the filesystem
-with `import.meta.glob`, every box points at a real path, and the source view and
-the comparison read the files themselves. A rename moves a file in the tree,
-changes its URL and relabels its box, with no list to update.
+## Маршруты по именам сегментов
 
-Every path carries a note — what it is, why it lives there, what to do when you
-work on it. Development warns both ways: a note for a path that no longer
-exists, and a path nobody has described.
+Штатная конвенция TanStack Router — `index.tsx` и `route.tsx`, а точка в имени
+файла у неё разделитель пути: `projects/projects.page.tsx` превратился бы в
+`/projects/projects`. Поэтому дерево маршрутов описывает генератору
+[vite.config.ts](vite.config.ts) (virtual file routes): папка — сегмент,
+`*.page.tsx` — страница, `*.layout.tsx` — лэйаут, папки с дефисом пропускаются.
+Правило «новая папка — новый URL» работает как раньше: при появлении или
+удалении страницы dev-сервер перезапускается сам.
 
-## What dogfooding changed
+У `/` своей страницы нет — `__root.tsx` редиректит на `/projects` в
+`beforeLoad`.
 
-- **`*.page.tsx` does not survive contact with the router.** TanStack Router
-  wants `index.tsx` under a `new/` folder; a dot-named file would become a URL
-  segment. The folder carries the meaning, and the role suffix applies only to
-  non-route files.
-- **Typed navigation has exactly one hole.** Opening a file derives a URL from a
-  path at runtime and needs a cast. One line, one place, commented.
-- **Matching a rendered URL against a derived one is not enough.** It only ever
-  worked for the parameter values baked into the derivation, so `/tasks/TF-138`
-  selected nothing. The router's own match is asked instead.
-- **The twins are less alike than claimed.** `/compare` measures it instead of
-  asserting it, and the measured figure came out below the one this project used
-  to state in prose.
+## Куда положить код
 
-## Deploying
+1. Нужен новый адрес → папка в `routes/` и в ней `<сегмент>.page.tsx` (Т1, Т5).
+2. Код нужен одному маршруту → рядом с ним, в его `-components/` (Т4).
+3. Нужен второму маршруту → в `-components/` ближайшего общего предка (Т4).
+4. Не знает домена и нужен в разных ветках → `shared/ui` или `shared/lib` (Т4).
+5. Обращается к серверу → только через `shared/api` (Т9).
+6. Нужен ровно один раз на всё приложение (роутер, провайдер) → `app/` (Т2).
 
-Pushing to `main` publishes to GitHub Pages via
-[.github/workflows/deploy.yml](.github/workflows/deploy.yml). Enable it once in
-**Settings → Pages → Source → GitHub Actions**.
+## Стек
 
-Three things a single-page app needs there, all handled: the **base path** (CI
-passes `BASE_PATH`, the router reads `import.meta.env.BASE_URL`), **deep links**
-(the build writes `404.html`, since Pages has no rewrite rule), and
-**`.nojekyll`** (or Pages drops files beginning with an underscore).
+Архитектура называет роли, стек называет инструменты. Правила размещения не
+меняются от того, какой библиотекой заполнена роль.
 
-To check a Pages-shaped build locally:
+| Роль | React (этот репозиторий) | Vue | Angular |
+|---|---|---|---|
+| роутинг по файлам | TanStack Router | Vue Router + unplugin-vue-router | Angular Router |
+| серверное состояние | React Query | TanStack Query | HttpClient + resource |
+| состояние поддерева | нативный контекст | provide / inject | сервис на уровне маршрута |
+
+## Подключение к ИИ-ассистенту
+
+Требования и правила размещения собраны в [`public/llms.txt`](public/llms.txt)
+в формате [llms.txt](https://llmstxt.org). На GitHub Pages он лежит рядом с
+приложением:
+
+```
+https://alex5.github.io/route-slice-design/llms.txt
+```
+
+Как подключить:
+
+- **Claude Code, Codex, Copilot, любой агент, читающий файлы** — положите копию в
+  свой репозиторий и сошлитесь на неё из `CLAUDE.md` / `AGENTS.md`:
+
+  ```bash
+  curl -fsSL https://alex5.github.io/route-slice-design/llms.txt -o docs/architecture.md
+  ```
+
+  В `CLAUDE.md` — строка `@docs/architecture.md`, в `AGENTS.md` — ссылка на файл.
+  Копия версионируется вместе с кодом и работает без сети.
+- **Cursor** — Settings → Indexing & Docs → Add Doc, вставьте URL выше. В чате —
+  `@Docs`.
+- **Разово** — вставьте URL в чат ассистенту с доступом к вебу.
+
+Автоматические проверки не зависят от ассистента: скопируйте
+`scripts/check-architecture.mjs` и правило `func-style` из `.oxlintrc.json` и
+запускайте их в CI.
+
+## Как читать демо
+
+Средняя колонка — настоящее работающее приложение. Каждая пунктирная рамка —
+часть вывода одного файла, подписанная этим файлом; вложенность рамок —
+вложенность лэйаутов.
+
+Выбор постоянный, наведение только подсвечивает — они не спорят за одну
+подсветку:
+
+- клик по файлу слева — браузер переходит на URL, за который файл отвечает, файл
+  остаётся выбранным
+- навигация в приложении — дерево раскрывает ветку и выбирает файл, который её
+  рендерит
+- наведение на файл — его рамка обводится тоньше, выбор остаётся
+- наведение на папку — обводятся все рамки внутри
+- наведение на рамку в приложении — её файл подсвечивается в дереве
+- **Превью / Код** — что рендерит маршрут или файл, который его рендерит. Файл
+  без URL (`wizard.context.tsx`) сразу открывается как код. Открытый файл
+  адресуем через `?source=<path>`
+- **Сравнение близнецов** — `/compare` ставит две формы задачи рядом и измеряет,
+  насколько они похожи
+- **С чего начать** — экскурсия по восьми шагам. Шаг хранится в адресе
+  (`?tour=3`), поэтому экскурсию можно отправить ссылкой с нужного места
+
+Ничего на экране не нарисовано отдельно от кода. Дерево читается с диска через
+`import.meta.glob`, каждая рамка указывает на реальный путь, просмотр исходника
+и сравнение читают сами файлы. Переименование переносит файл в дереве, меняет
+его URL и подпись рамки без правки списков.
+
+У каждого пути есть заметка: что это, почему лежит здесь, что делать, когда с
+этим работаешь. В разработке консоль предупреждает в обе стороны: о заметке к
+несуществующему пути и о пути без заметки.
+
+## Что изменил догфудинг
+
+- **`index.tsx` уступил `*.page.tsx`.** Десять вкладок `index.tsx` в редакторе
+  не говорят ничего. Генератор TanStack режет имена по точкам, поэтому дерево
+  ему теперь описывает `vite.config.ts` — ~40 строк вместо смены конвенции.
+- **В типизированной навигации ровно одна дыра.** Открытие файла выводит URL из
+  пути в рантайме и требует каста. Одна строка, одно место, с комментарием.
+- **Сопоставлять отрендеренный URL с выведенным недостаточно.** Это работало
+  только для значений параметров, зашитых в вывод, — `/tasks/TF-138` ничего не
+  выбирал. Теперь спрашивается собственный матч роутера.
+- **Близнецы похожи меньше, чем заявлялось.** `/compare` измеряет это вместо
+  утверждения, и измеренная цифра оказалась ниже той, что стояла в тексте.
+- **Проверка архитектуры нашла нарушение в самом демо.** `__root.tsx` импортировал
+  провайдеры из `app/`, а shadcn CLI положил компонент в папку `@/` вне `src/`.
+  Провайдеры теперь подключает роутер (`InnerWrap`), компонент — в `shared/ui`.
+- **Варианты стека в дереве мешали читать архитектуру.** Папки `react/`, `vue/`,
+  `angular/` делали фреймворк частью URL и дерева. Стек — это таблица ролей, а не
+  уровень вложенности.
+
+## Деплой
+
+Пуш в `main` публикует на GitHub Pages через
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml). Включается один
+раз: **Settings → Pages → Source → GitHub Actions**.
+
+Три вещи, которые нужны SPA на Pages, уже сделаны: **base path** (CI передаёт
+`BASE_PATH`, роутер читает `import.meta.env.BASE_URL`), **глубокие ссылки**
+(сборка пишет `404.html`, потому что у Pages нет rewrite) и **`.nojekyll`**
+(иначе Pages выбрасывает файлы, начинающиеся с подчёркивания).
+
+Проверить сборку как на Pages локально:
 
 ```bash
 BASE_PATH=/rsd/ pnpm build && BASE_PATH=/rsd/ pnpm preview
 ```
 
-## Layout
+## Структура
 
 ```
+public/llms.txt            требования для ИИ-ассистента
+scripts/check-architecture проверка Т2, Т3, Т5
+vite.config.ts             дерево маршрутов из папок (Т5)
 src/
-  app/                     composition root: router, providers
-  routes/                  the URL tree — folders here are the address bar
-    -components/           chrome on every URL (header)
-    __root.tsx             shell: header, tree, <Outlet/>, note panel
-    compare.tsx            /compare
-    react/                 the built variant
-      projects/            server state and URL state
-      wizard/              state shared by one subtree
-    vue/  angular/         the same app in other stacks, not written yet
-  shared/                  knows nothing about routes/ or app/
-    api/                   stands in for a generated client
-    explorer/              the tree, the note panel, the hover state
-    lib/                   source-tree (fact) and source-notes (opinion)
-    ui/                    boundary, source-view, section, form-actions, …
+  app/                     корень композиции: роутер, провайдеры
+  routes/                  дерево URL — папки здесь и есть адресная строка
+    -components/           обвязка на каждом URL (шапка)
+    __root.tsx             оболочка: шапка, дерево, <Outlet/>, заметки
+    compare/               /compare
+    projects/              серверное состояние и состояние в URL
+    wizard/                состояние одного поддерева
+  shared/                  ничего не знает о routes/ и app/
+    api/                   замена сгенерированного клиента
+    lib/                   source-tree (факт) и source-notes (мнение)
+    ui/                    boundary, explorer, source-view, form-actions, …
 ```
 
-shadcn ships no tree view, so
-[tree-view.tsx](src/shared/ui/tree-view/tree-view.tsx) dresses Ark UI's headless
-primitives in the same shadcn tokens as everything else; it copies into another
-project like any other shadcn component.
+В shadcn нет дерева, поэтому
+[tree-view.tsx](src/shared/ui/tree-view/tree-view.tsx) одевает headless-примитивы
+Ark UI в те же токены shadcn; компонент копируется в другой проект как любой
+другой компонент shadcn.

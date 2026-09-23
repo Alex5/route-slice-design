@@ -15,6 +15,7 @@
 import { useLocation, useMatches, useNavigate } from "@tanstack/react-router";
 import { createContext, use, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { hasSource } from "#/shared/lib/source-code.ts";
 import { ancestorIds, nodeByPath, pathForRouteId } from "#/shared/lib/source-tree.ts";
 
 interface ExplorerValue {
@@ -44,7 +45,7 @@ export function useExplorer() {
   return value;
 }
 
-const INITIAL_EXPANDED = ["src", "src/routes", "src/routes/react/projects", "src/shared"];
+const INITIAL_EXPANDED = ["src", "src/routes", "src/routes/projects", "src/shared"];
 
 export function ExplorerProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
@@ -87,9 +88,13 @@ export function ExplorerProvider({ children }: { children: ReactNode }) {
         if (route) {
           // The URL is derived from a path at runtime, so the typed navigation
           // API cannot check it. This is the one place that cast is unavoidable.
-          navigate({ to: route as "/" });
+          navigate({ to: route as "/projects" });
           return;
         }
+
+        // A folder that is not a segment (`-components`, `shared`) has neither a
+        // URL nor code of its own; selecting it is all a click can mean.
+        if (!hasSource(path)) return;
 
         navigate({
           to: ".",

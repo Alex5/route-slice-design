@@ -7,9 +7,9 @@
  */
 import type { ReactNode } from "react";
 
-import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { isBoundaryActive, nodeByPath, type Layer } from "#/shared/lib/source-tree.ts";
 import { cn } from "#/shared/lib/utils.ts";
+import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 
 /**
  * Two weights, never in competition: a selection stays lit while the cursor
@@ -66,7 +66,7 @@ export function Boundary({
       }}
       onMouseOut={() => hover(null)}
       className={cn(
-        "relative rounded-lg border border-dashed px-5 pb-5 pt-7 transition-colors",
+        "relative rounded-xl border border-dashed px-6 pb-6 pt-8 transition-colors",
         selected ? style.selected : hovered ? style.hovered : "border-white/10",
         className,
       )}
@@ -75,12 +75,12 @@ export function Boundary({
         type="button"
         onClick={() => open(file)}
         className={cn(
-          "absolute -top-2.5 start-4 whitespace-nowrap rounded px-1.5 py-0.5 font-mono text-[10px] uppercase leading-4 tracking-wider transition-colors",
+          "absolute -top-2.5 start-5 whitespace-nowrap rounded px-1.5 py-0.5 font-mono text-[10px] leading-4 transition-colors",
           selected
             ? style.chip
             : hovered
               ? style.tint
-              : "bg-secondary text-muted-foreground hover:text-foreground",
+              : "bg-background text-muted-foreground hover:text-foreground",
         )}
       >
         {label ?? node?.name ?? file}

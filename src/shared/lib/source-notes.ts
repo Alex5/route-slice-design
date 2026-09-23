@@ -4,518 +4,498 @@
  * Kept apart from the tree itself: the tree is a fact read from the filesystem,
  * this is opinion. Both directions are checked in development — a note for a
  * path that no longer exists warns, and so does a file nobody has described.
+ *
+ * `rule` points at a requirement in README (Т1–Т10).
  */
 import { nodeByPath } from "#/shared/lib/source-tree.ts";
 
 export interface SourceNote {
-  /** File role, per § 3 of the spec. */
+  /** Роль файла. */
   role?: string;
-  /** The point worth remembering, shown as a callout. */
+  /** Главное, что стоит запомнить, — выносится в плашку. */
   note?: string;
-  /** What this is and why it lives here. */
+  /** Что это и почему лежит здесь. */
   doc?: string;
-  /** What to do when you need to work on it. */
+  /** Что делать, когда нужно с этим работать. */
   use?: string;
-  /** Spec reference. */
+  /** Требование из README. */
   rule?: string;
-  /** Blocks this file is composed of, by path. */
+  /** Блоки, из которых собран файл, по путям. */
   composedOf?: string[];
 }
 
-const R = "src/routes/react/projects";
+const R = "src/routes/projects";
 const P = `${R}/$projectId`;
 const TASKS = `${P}/tasks`;
+const WIZARD = "src/routes/wizard";
 const UI = "src/shared/ui";
 const EXPLORER = "src/shared/ui/explorer";
 
 export const sourceNotes: Record<string, SourceNote> = {
-  /* ── the three layers ─────────────────────────────────────────────────── */
+  /* ── три слоя ─────────────────────────────────────────────────────────── */
 
   src: {
-    doc: "Three layers and no more: app composes, routes owns the URL tree, shared holds what belongs to no single route. Dependencies point downward only.",
-    use: "Before adding a top-level folder, ask which of the three it would belong to. The answer is nearly always one of them.",
-    rule: "§ 2",
+    doc: "Три слоя и не больше: app собирает, routes владеет деревом URL, shared хранит то, что не принадлежит ни одному маршруту. Зависимости — только вниз: app → routes → shared.",
+    use: "Прежде чем заводить папку верхнего уровня, спросите, к какому из трёх слоёв она относится. Почти всегда ответ — один из них.",
+    rule: "Т2",
   },
 
   "src/app": {
-    doc: "The composition root — the only layer allowed to know about every other one. Nothing here renders application content.",
-    use: "Put things here that must exist exactly once for the whole app: the router, providers, global styles.",
-    rule: "§ 2",
+    doc: "Корень композиции — единственный слой, которому можно знать обо всех остальных. Здесь не рендерится содержимое приложения.",
+    use: "Сюда — то, что существует ровно один раз на всё приложение: роутер, провайдеры, глобальные стили.",
+    rule: "Т2",
   },
   "src/app/providers": {
-    doc: "Context providers wrapping the entire tree.",
-    use: "Add a provider by nesting it inside with-providers.tsx rather than at a call site, so the order stays visible in one file.",
+    doc: "Провайдеры контекста, оборачивающие всё дерево.",
+    use: "Новый провайдер вкладывайте в with-providers.tsx, а не в месте вызова, — порядок останется виден в одном файле.",
   },
   "src/app/providers/with-providers.tsx": {
     role: "provider",
-    doc: "One assembly point for providers, so their nesting order is legible instead of smeared across main.tsx.",
-    use: "Wrap new providers here. If a provider is only needed under one URL, it belongs in that route's layout instead.",
-    rule: "§ 2",
+    doc: "Одна точка сборки провайдеров. Подключается роутером через InnerWrap, поэтому routes ничего не импортирует из app.",
+    use: "Оборачивайте новые провайдеры здесь. Если провайдер нужен только под одним URL, ему место в лэйауте этого маршрута.",
+    rule: "Т2",
   },
   "src/app/router.tsx": {
     role: "router",
-    doc: "Builds the router from the generated route tree and registers its types globally, which is what makes every <Link to> checked at compile time.",
-    use: "Never list a route here — routes come from folders. Change router-wide policy (preloading, scroll restoration) in this file only.",
-    rule: "§ 10",
+    doc: "Собирает роутер из сгенерированного дерева маршрутов и регистрирует его типы глобально — поэтому каждый <Link to> проверяется при компиляции. Здесь же подключаются провайдеры.",
+    use: "Маршруты сюда не вписываются никогда — они берутся из папок. Политику роутера (предзагрузка, восстановление скролла) меняйте только в этом файле.",
+    rule: "Т10",
   },
   "src/main.tsx": {
     role: "entry",
-    doc: "Mounts the router into #root. Deliberately the shortest file in the repository.",
-    use: "Resist adding anything here; app-wide concerns belong in app/providers.",
+    doc: "Монтирует роутер в #root. Намеренно самый короткий файл в репозитории.",
+    use: "Не добавляйте сюда ничего; то, что касается всего приложения, — в app/.",
   },
   "src/styles.css": {
-    doc: "Tailwind v4 setup plus the shadcn token palette, and the three layer colours used by the tree, the legend and every outline.",
-    use: "Change a layer colour here and it changes everywhere at once — the tokens are the single vocabulary.",
+    doc: "Tailwind v4, токены shadcn и три цвета слоёв, которыми окрашены дерево, легенда и все рамки.",
+    use: "Поменяйте цвет слоя здесь — он поменяется везде сразу. Токены — единый словарь.",
   },
 
   /* ── routes ───────────────────────────────────────────────────────────── */
 
   "src/routes": {
-    doc: "The URL tree. Every folder here is a path segment, so where code lives follows from the address bar rather than from a convention someone has to remember.",
-    use: "Create a folder to create a URL. Prefix it with a dash to keep it out of routing.",
-    rule: "§ 1 · ADR-0001",
+    doc: "Дерево URL. Каждая папка здесь — сегмент пути, поэтому место кода определяется адресной строкой, а не соглашением, которое надо помнить.",
+    use: "Нужен URL — создайте папку. Папку, которая не должна стать адресом, начните с дефиса.",
+    rule: "Т1",
   },
   "src/routes/-components": {
-    doc: "Chrome belonging to every URL. Dash-prefixed at the very top of routes/, so the rule that keeps folders out of routing applies at the root exactly as it does deeper down.",
-    use: "Put something here only when it must appear on every page; anything narrower belongs to a nested route.",
-    rule: "§ 3",
+    doc: "Обвязка, общая для всех URL. Дефис в начале работает и в корне routes/ — ровно как глубже.",
+    use: "Кладите сюда только то, что должно быть на каждой странице; всё более узкое принадлежит вложенному маршруту.",
+    rule: "Т5",
   },
   "src/routes/-components/site-header": {
-    doc: "The application header: wordmark, stack badges, link to the source.",
-    use: "The one place to change branding. The source link appears only when a build supplies VITE_REPO_URL, which the deploy workflow does.",
+    doc: "Шапка приложения: логотип, навигация, ссылка на исходники.",
+    use: "Единственное место, где меняется брендинг.",
   },
   "src/routes/-components/site-header/site-header.tsx": {
-    doc: "The wordmark deliberately echoes Feature-Sliced Design, because this is the opposing answer to the same question: the slice is a route, not a feature. Version numbers are read from package.json rather than typed in, for the same reason the tree is read from the filesystem.",
-    use: "Add a badge by naming a package in STACK; if the dependency is dropped, its number simply disappears.",
+    doc: "Логотип нарочно перекликается с Feature-Sliced Design: это противоположный ответ на тот же вопрос — слайс это маршрут, а не фича.",
+    use: "Ссылка на llms.txt берёт базовый путь из import.meta.env.BASE_URL, поэтому работает и на GitHub Pages.",
   },
   "src/routes/__root.tsx": {
     role: "layout",
-    doc: "The shell every URL renders inside: header on top, the source tree on the left, an <Outlet/> in the middle, this note on the right. A real root layout, which is why the tree keeps its scroll and expansion as you navigate.",
-    use: "Add chrome that must survive every navigation here. Anything URL-specific belongs in a nested layout instead.",
-    rule: "§ 2",
+    doc: "Оболочка, внутри которой рендерится любой URL: шапка, дерево исходников слева, <Outlet/> в центре, эта заметка справа. Настоящий корневой лэйаут — поэтому дерево сохраняет скролл и раскрытие при навигации.",
+    use: "Сюда — обвязка, которая переживает любую навигацию. Всё, что зависит от URL, — во вложенный лэйаут. Своей страницы у `/` нет: beforeLoad здесь редиректит на /projects.",
+    rule: "Т1",
   },
-  "src/routes/index.tsx": {
+  "src/routes/compare": {
+    doc: "/compare. Даже маршрут из одной страницы — папка: адрес всегда папка, страница всегда *.page.tsx.",
+  },
+  "src/routes/compare/compare.page.tsx": {
     role: "page",
-    doc: "Answers `/` with a redirect to /projects. It exists because a bare origin has to resolve to something.",
-    use: "Change the landing route here; it is a one-line beforeLoad.",
-  },
-  "src/routes/compare.tsx": {
-    role: "page",
-    note: "Reads the two twin files as text and measures how alike they are.",
-    doc: "Imports both task forms with Vite's ?raw, marks lines occurring in both, and prints the resulting percentage. The claim cannot drift away from the code the way a comment would.",
-    use: "Nothing to maintain: rename or rewrite either twin and the number recomputes on the next build.",
-    rule: "§ 5",
-  },
-
-  /* ── variants ─────────────────────────────────────────────────────────── */
-
-  "src/routes/react": {
-    doc: "One whole application in one stack. The architecture names roles — page, layout, lifted block, client state, server state — and a variant names the tools that fill them.",
-    use: "Switch stacks from the select in the header. The folder rules inside are identical in every variant; only the tools differ.",
-  },
-  "src/routes/react/index.tsx": {
-    role: "page",
-    doc: "Sends /react to the variant's project list, because a variant root has to answer something.",
-  },
-  "src/routes/vue": {
-    doc: "The same application in Vue Router and Pinia. Not written yet.",
-    use: "Building it would change no rule above this folder — only what fills each role.",
-  },
-  "src/routes/vue/index.tsx": { role: "page" },
-  "src/routes/angular": {
-    doc: "The same application in Angular. Not written yet.",
-  },
-  "src/routes/angular/index.tsx": { role: "page" },
-  "src/routes/-components/variant-placeholder": {
-    doc: "Stands in for a stack nobody has written.",
-    use: "It lists what would fill each role, because that mapping is all a variant decides.",
-  },
-  "src/routes/-components/variant-placeholder/variant-placeholder.tsx": {
-    doc: "States the role-to-tool mapping for an unwritten variant, and says plainly that the folder rules would not change.",
-  },
-  "src/shared/lib/variants.ts": {
-    note: "The architecture names roles; a variant names tools.",
-    doc: "Keeping the two apart is the point. Which store library to use is an implementation decision belonging to a variant, not a rule of the architecture — mixing them made the rules look less definite than they are.",
-    use: "Add a stack here and it appears in the header select.",
+    note: "Читает двух близнецов как текст и измеряет, насколько они похожи.",
+    doc: "Импортирует обе формы задачи через ?raw, помечает общие строки и печатает процент. Утверждение не может разойтись с кодом, как разошёлся бы комментарий.",
+    use: "Поддерживать нечего: переименуйте или перепишите любой из близнецов — число пересчитается при следующей сборке. ?raw — это текст, а не зависимость, поэтому проверка границ его пропускает.",
+    rule: "Т4",
   },
 
   /* ── /projects ────────────────────────────────────────────────────────── */
 
   [R]: {
-    doc: "Everything reachable under /projects. The folder is both the URL segment and the module boundary.",
-    use: "Delete this folder and the feature is gone with no leftovers anywhere else — that is the property the whole architecture is built for.",
-    rule: "§ 1",
+    doc: "Всё, что доступно под /projects. Папка — одновременно сегмент URL и граница модуля.",
+    use: "Удалите эту папку — и раздела нет, без остатков где-либо ещё. Ради этого свойства архитектура и построена.",
+    rule: "Т1",
   },
-  [`${R}/index.tsx`]: {
+  [`${R}/projects.page.tsx`]: {
     role: "page",
-    doc: "An orchestrator: heading, list, action. It holds no networking and no business logic of its own.",
-    use: "Keep pages this thin. When one grows past composition, push the weight down into a -components folder.",
-    rule: "§ 4",
+    doc: "Оркестратор: заголовок, список, действие. Своей сетевой и бизнес-логики нет.",
+    use: "Держите страницы такими же тонкими. Когда страница перерастает композицию, опускайте вес в -components.",
+    rule: "Т6",
   },
   [`${R}/-components`]: {
-    doc: "The dash keeps the folder out of routing — check the URL bar, nothing in here is addressable. Everything inside belongs to /projects and to nothing else.",
-    use: "Put a component here the moment it is used twice on this page, and no earlier.",
-    rule: "§ 3 · § 5",
+    doc: "Дефис исключает папку из роутинга — посмотрите в адресную строку, здесь ничего не адресуемо. Всё внутри принадлежит /projects и больше никому.",
+    use: "Компонент попадает сюда в момент, когда он нужен второй раз на этой странице, — не раньше.",
+    rule: "Т3 · Т4",
   },
   [`${R}/-components/add-project-button`]: {
     role: "Command Component",
-    doc: "One user action, self-contained: trigger, dialog state and the write itself. Named verb-noun-button so the folder listing reads as a list of what the user can do.",
-    use: "Copy this folder to add another action. Adding one touches no existing file except a single line of JSX in the page.",
-    rule: "§ 4 · ADR-0003",
+    doc: "Одно действие пользователя целиком: триггер, состояние диалога и сама запись. Имя в форме глагол-сущность-button, поэтому список папок читается как список того, что может пользователь.",
+    use: "Скопируйте папку, чтобы добавить ещё одно действие. Новое действие не трогает существующих файлов, кроме одной строки JSX на странице.",
+    rule: "Т6",
   },
   [`${R}/-components/add-project-button/add-project-button.tsx`]: {
-    doc: "Owns its own open state. The page renders <AddProjectButton /> with no props and never learns what pressing it does.",
-    use: "If this file passes ~120 lines or gains a second write, move the logic into a sibling hook and leave markup here.",
-    rule: "§ 4",
+    doc: "Сам владеет своим состоянием. Страница рендерит <AddProjectButton /> без пропсов и не знает, что происходит по нажатию.",
+    use: "Если файл перевалит за ~120 строк или получит вторую запись — вынесите логику в соседний хук, разметку оставьте здесь.",
+    rule: "Т6",
   },
   [`${R}/-components/projects-table`]: {
-    doc: "The project list as rendered on this one page.",
-    use: "Keep it here while only /projects lists projects. A second lister elsewhere is what would justify moving it.",
-    rule: "§ 5",
+    doc: "Список проектов в том виде, в каком он нужен этой странице.",
+    use: "Держите его здесь, пока проекты перечисляет только /projects. Второй список где-то ещё — повод поднять.",
+    rule: "Т4",
   },
   [`${R}/-components/projects-table/projects-table.tsx`]: {
-    doc: "Reads its own data and owns its own navigation, so the page above stays free of plumbing.",
-    use: "Swap the mock import for a real query hook and nothing above this file changes.",
-    rule: "§ 9",
+    doc: "Сам читает данные и сам навигирует, поэтому странице выше не нужна обвязка.",
+    use: "Замените импорт моков на хук запроса — выше этого файла ничего не изменится.",
+    rule: "Т7",
     composedOf: [`${UI}/data-table/data-table.tsx`],
   },
 
   /* ── /projects/$projectId ─────────────────────────────────────────────── */
 
   [P]: {
-    doc: "A dynamic segment is a real folder. Everything belonging to one project lives inside it, at the same depth the URL puts it.",
-    use: "Anything shared by several project pages goes in this folder's -components, not in shared/.",
-    rule: "§ 1 · ADR-0001",
+    doc: "Динамический сегмент — настоящая папка. Всё, что относится к одному проекту, лежит в ней, на той же глубине, что и в URL.",
+    use: "То, что общее для нескольких страниц проекта, — в -components этой папки, а не в shared/.",
+    rule: "Т1",
   },
-  [`${P}/route.tsx`]: {
+  [`${P}/project-id.layout.tsx`]: {
     role: "layout",
-    doc: "The project shell: title, tabs, <Outlet/>. It stays mounted while you move between Overview and Tasks, which is the entire reason layouts are separate files.",
-    use: "Load data once here for the whole subtree. Watch the outline survive a tab change — that is the layout not remounting.",
-    rule: "§ 9",
+    doc: "Оболочка проекта: заголовок, вкладки, <Outlet/>. Остаётся смонтированной при переходе между «Обзором» и «Задачами» — ровно поэтому лэйауты живут в отдельных файлах.",
+    use: "Данные для всего поддерева грузите здесь один раз. Переключите вкладку — рамка не мигнёт: лэйаут не перемонтируется.",
+    rule: "Т7",
   },
-  [`${P}/index.tsx`]: {
+  [`${P}/project-id.page.tsx`]: {
     role: "page",
-    doc: "What /projects/apollo itself shows, as opposed to what its layout shows. Splitting the two is what lets the shell persist.",
-    use: "Put project-level summary content here; anything framing it belongs in route.tsx.",
+    doc: "То, что показывает сам /projects/apollo, в отличие от того, что показывает его лэйаут. Разделение и позволяет оболочке жить дальше.",
+    use: "Сводка по проекту — сюда; всё, что её обрамляет, — в project-id.layout.tsx.",
   },
   [`${P}/-components`]: {
-    doc: "Shared by every page under this project and by nothing outside it — the exact condition for living one level up rather than in shared/.",
-    use: "Move a component here on its second use inside the project.",
-    rule: "§ 5",
+    doc: "Общее для всех страниц этого проекта и ни для чего снаружи — ровно условие, чтобы лежать уровнем выше, а не в shared/.",
+    use: "Переносите компонент сюда при втором использовании внутри проекта.",
+    rule: "Т4",
   },
   [`${P}/-components/project-tabs`]: {
-    doc: "Navigation between the project's sections.",
-    use: "Add a tab by adding a <Link>; the target must already exist as a folder or the build fails.",
+    doc: "Навигация по разделам проекта.",
+    use: "Вкладка добавляется одним <Link>; цель уже должна существовать как папка, иначе сборка упадёт.",
   },
   [`${P}/-components/project-tabs/project-tabs.tsx`]: {
-    doc: "Not one string path in JSX: <Link to> is typed from the generated route tree, so renaming a folder breaks the build instead of the app.",
-    use: "Never hand-build a URL. If you find yourself with a string, you are working around the router.",
-    rule: "§ 10",
+    doc: "Ни одного строкового пути в JSX: <Link to> типизирован сгенерированным деревом, поэтому переименование папки ломает сборку, а не приложение.",
+    use: "Никогда не собирайте URL руками. Если у вас в руках строка — вы обходите роутер.",
+    rule: "Т10",
   },
 
   /* ── /projects/$projectId/tasks ───────────────────────────────────────── */
 
   [TASKS]: {
-    doc: "The task section: a list, a create form, a detail page and an edit form. Four URLs, four folders.",
-    use: "This is the branch to read first — it exercises every rule in the spec at once.",
+    doc: "Раздел задач: список, форма создания, карточка и форма редактирования. Четыре URL — четыре папки.",
+    use: "С этой ветки стоит начать чтение — она задействует почти все требования сразу.",
   },
-  [`${TASKS}/index.tsx`]: {
+  [`${TASKS}/tasks.page.tsx`]: {
     role: "page",
-    doc: "An orchestrator: heading, filter, table, link to the create form. It owns the search-param contract for this URL and nothing else.",
-    use: "Add a filter by extending validateSearch here, then reading it in a component under -components/filters.",
-    rule: "§ 4 · § 8",
+    doc: "Оркестратор: заголовок, фильтр, таблица, ссылка на создание. Владеет контрактом search-параметров этого URL и ничем больше.",
+    use: "Новый фильтр — расширьте validateSearch здесь и читайте его в компоненте из -components/filters.",
+    rule: "Т6 · Т7",
   },
   [`${TASKS}/-components`]: {
-    doc: "Pieces used by more than one task URL but by nothing outside the task section.",
-    use: "Three things live here for three different reasons: filters and the table serve the list, the form serves both write pages.",
-    rule: "§ 5",
+    doc: "То, что нужно нескольким URL задач, но ничему вне раздела задач.",
+    use: "Здесь три вещи по трём разным причинам: фильтры и таблица обслуживают список, форма — обе страницы записи.",
+    rule: "Т4",
   },
   [`${TASKS}/-components/filters`]: {
-    doc: "Controls that write to the URL rather than to component state.",
-    use: "Add a filter as its own file here; each one reads and writes a single search param.",
-    rule: "§ 8",
+    doc: "Контролы, которые пишут в URL, а не в состояние компонента.",
+    use: "Каждый фильтр — отдельный файл; каждый читает и пишет один search-параметр.",
+    rule: "Т7",
   },
   [`${TASKS}/-components/filters/status-filter.tsx`]: {
-    doc: "Filter state lives in the route's search params, not in useState: the link survives a reload and can be handed to someone else. Click a status and watch the address bar.",
-    use: "It reaches its route through getRouteApi instead of importing the page file — that is how a -components file talks to its route without a sibling import.",
-    rule: "§ 8",
+    doc: "Состояние фильтра живёт в search-параметрах маршрута, а не в useState: ссылка переживает перезагрузку и её можно отправить коллеге. Кликните статус и посмотрите на адресную строку.",
+    use: "До своего маршрута он дотягивается через getRouteApi, а не импортом файла страницы, — так файл из -components общается с маршрутом без импорта соседа.",
+    rule: "Т7 · Т3",
   },
   [`${TASKS}/-components/tasks-table`]: {
-    doc: "The task list as rendered under this project.",
-    use: "Keep presentation here and filtering in the page: the table renders whatever rows it is handed.",
+    doc: "Список задач проекта.",
+    use: "Представление — здесь, фильтрация — на странице: таблица рисует те строки, что ей дали.",
   },
   [`${TASKS}/-components/tasks-table/tasks-table.tsx`]: {
-    doc: "Knows what a Task looks like and how to navigate to one; leaves deciding which tasks to show to the page above.",
-    use: "Change a column here. Change which rows appear in the page.",
+    doc: "Знает, как выглядит задача и как к ней перейти; какие задачи показывать, решает страница выше.",
+    use: "Колонка меняется здесь. Набор строк — на странице.",
     composedOf: [`${UI}/data-table/data-table.tsx`],
   },
   [`${TASKS}/-components/task-form`]: {
     role: "lifted block",
-    note: "Lifted here on the second use — not before.",
-    doc: "Both task forms need these fields, and their nearest common ancestor is tasks/. So the block sits one level up rather than in shared/: it knows what a Task is, which is exactly what disqualifies it from shared/ui.",
-    use: "This is the rule in action — when a second caller appears, move the code to the nearest ancestor both callers share, and no further.",
-    rule: "§ 5",
+    note: "Поднят сюда на втором использовании — не раньше.",
+    doc: "Эти поля нужны обеим формам, а их ближайший общий предок — tasks/. Поэтому блок лежит уровнем выше, а не в shared/: он знает, что такое задача, и именно это закрывает ему дорогу в shared/ui.",
+    use: "Правило в действии: появился второй потребитель — переносите код к ближайшему общему предку, и не дальше.",
+    rule: "Т4",
   },
   [`${TASKS}/-components/task-form/task-form-fields.tsx`]: {
-    doc: "The field set both write pages render. It takes an optional task, which is the only difference between creating and editing.",
-    use: "Add a field here once and both forms get it. If a field belongs to only one of them, put it in that page instead.",
-    rule: "§ 5",
+    doc: "Набор полей, который рендерят обе страницы записи. Принимает необязательную задачу — это единственное отличие создания от редактирования.",
+    use: "Добавьте поле здесь один раз — оно появится в обеих формах. Поле нужно только одной — кладите его в её страницу.",
+    rule: "Т4",
   },
   [`${TASKS}/new`]: {
-    doc: "The create URL. A folder rather than a file because the router turns folders into segments.",
-    use: "Its page is index.tsx — the spec's *.page.tsx suffix does not survive here, since a dot-named file would become another URL segment.",
-    rule: "§ 3",
+    doc: "URL создания. Папка, а не файл, потому что роутер превращает папки в сегменты.",
+    use: "Страница называется по сегменту — new.page.tsx. Не index.tsx: имя файла должно говорить, что это, и в поиске по файлам, и во вкладке редактора.",
+    rule: "Т5",
   },
-  [`${TASKS}/new/index.tsx`]: {
+  [`${TASKS}/new/new.page.tsx`]: {
     role: "page",
-    note: "Nearly a copy of tasks/$taskId/edit/index.tsx. Leave it that way.",
-    doc: "Both pages assemble the same blocks, so what stays duplicated is only the assembly: heading, defaults, which write runs, where you land afterwards. Merging them behind a mode prop would trade four honest lines for a branch in every block below.",
-    use: "Open /compare to see the measured overlap. When the two drift apart, this file changes and the other does not.",
-    rule: "§ 5",
+    note: "Почти копия $taskId/edit/edit.page.tsx. Так и оставьте.",
+    doc: "Обе страницы собирают одни и те же блоки, поэтому дублируется только сборка: заголовок, значения по умолчанию, какая запись выполняется, куда попадаешь после. Слить их через проп mode — значит обменять четыре честные строки на ветвление в каждом блоке ниже.",
+    use: "Откройте «Сравнение близнецов», чтобы увидеть измеренное сходство. Когда близнецы разойдутся, меняться будет один файл, а не оба.",
+    rule: "Т4",
     composedOf: [
-      `${UI}/section/section.tsx`,
+      `${UI}/card/card.tsx`,
       `${TASKS}/-components/task-form/task-form-fields.tsx`,
       `${UI}/form-actions/form-actions.tsx`,
     ],
   },
   [`${TASKS}/$taskId`]: {
-    doc: "One task. The detail page and everything reachable from it.",
-    use: "Its loader is the place to fetch the task once for this URL and everything nested under it.",
-    rule: "§ 9",
+    doc: "Одна задача: карточка и всё, что из неё доступно.",
+    use: "Лоадер — место, где задача грузится один раз для этого URL и всего вложенного.",
+    rule: "Т7",
   },
-  [`${TASKS}/$taskId/index.tsx`]: {
+  [`${TASKS}/$taskId/task-id.page.tsx`]: {
     role: "page",
-    doc: "The task itself. Its loader resolves the task before render and throws notFound when the id is unknown — try editing TF-999 in the address bar.",
-    use: "Read route data through Route.useLoaderData rather than passing it down as props.",
-    rule: "§ 9",
+    doc: "Сама задача. Лоадер получает её до рендера и бросает notFound для неизвестного id — попробуйте TF-999 в адресной строке.",
+    use: "Данные маршрута читайте через Route.useLoaderData, а не передавайте пропсами.",
+    rule: "Т7",
   },
   [`${TASKS}/$taskId/edit`]: {
-    doc: "The edit URL, a sibling of the task rather than a mode of it. Being a separate address is what lets it be a separate file.",
-    use: "Compare this folder with tasks/new — the symmetry is the point.",
+    doc: "URL редактирования — сосед задачи, а не её режим. Отдельный адрес позволяет быть отдельным файлом.",
+    use: "Сравните эту папку с tasks/new — симметрия и есть смысл.",
   },
-  [`${TASKS}/$taskId/edit/index.tsx`]: {
+  [`${TASKS}/$taskId/edit/edit.page.tsx`]: {
     role: "page",
-    note: "Nearly a copy of tasks/new/index.tsx. That is the correct outcome.",
-    doc: "The two will drift: edit grows an audit trail, create grows a template picker. Because neither was folded into a shared wrapper, each change touches one file and neither page grows a flag it has to answer for.",
-    use: "When you are tempted to merge the twins, write down what the mode prop would have to control. That list is the cost.",
-    rule: "§ 5",
+    note: "Почти копия new/new.page.tsx. Это правильный результат.",
+    doc: "Близнецы разойдутся: у редактирования появится история изменений, у создания — выбор шаблона. Раз их не слили в общую обёртку, каждое изменение трогает один файл, и ни одна страница не обрастает флагом, за который придётся отвечать.",
+    use: "Когда захочется слить близнецов, выпишите, чем должен управлять проп mode. Этот список и есть цена.",
+    rule: "Т4",
     composedOf: [
-      `${UI}/section/section.tsx`,
+      `${UI}/card/card.tsx`,
       `${TASKS}/-components/task-form/task-form-fields.tsx`,
       `${UI}/form-actions/form-actions.tsx`,
     ],
   },
 
-  /* ── /wizard — state shared by one subtree ────────────────────────────── */
+  /* ── /wizard — состояние одного поддерева ─────────────────────────────── */
 
-  "src/routes/react/wizard": {
-    doc: "A three-step draft. The steps must agree on one object, but that object dies with the screen — which is what makes context the right size and a store the wrong one.",
-    use: "Reach for this shape when several components share state and none of them outlive the screen.",
-    rule: "§ 8",
+  [WIZARD]: {
+    doc: "Черновик в три шага. Шаги должны сходиться на одном объекте, но объект умирает вместе с экраном — поэтому контекст здесь правильного размера, а стор — нет.",
+    use: "Берите эту форму, когда несколько компонентов делят состояние и ни один не переживает экран.",
+    rule: "Т7",
   },
-  "src/routes/react/wizard/wizard.context.tsx": {
+  [`${WIZARD}/wizard.context.tsx`]: {
     role: "context",
-    note: "Native context, deliberately not a store.",
-    doc: "A store would outlive the screen and a prop chain would thread through every step. Context is the size of the problem: scoped to a subtree, gone when it unmounts.",
-    use: "Named .tsx because the provider is a component — the role is in the suffix, the extension describes the contents. Like every dotted name it answers no URL; only wizard/index.tsx does.",
-    rule: "§ 8 · § 3",
+    note: "Нативный контекст, намеренно не стор.",
+    doc: "Стор пережил бы экран, цепочка пропсов прошла бы через каждый шаг. Контекст — по размеру задачи: ограничен поддеревом и исчезает при размонтировании.",
+    use: "Расширение .tsx, потому что провайдер — компонент: роль в суффиксе, расширение описывает содержимое. URL отвечают только *.page.tsx и *.layout.tsx, поэтому этот файл — не маршрут.",
+    rule: "Т7 · Т5",
   },
-  "src/routes/react/wizard/index.tsx": {
+  [`${WIZARD}/wizard.page.tsx`]: {
     role: "page",
-    doc: "Mounts the provider and renders the current step. The step index is never passed down.",
-    use: "Note where the provider sits: inside the page, not in app/providers, because nothing above this route needs it.",
-    rule: "§ 2",
+    doc: "Монтирует провайдер и рендерит текущий шаг. Номер шага вниз не передаётся.",
+    use: "Обратите внимание, где стоит провайдер: внутри страницы, а не в app/providers, потому что выше этого маршрута он никому не нужен.",
+    rule: "Т7",
   },
-  "src/routes/react/wizard/-components": {
-    doc: "Pieces of the wizard, unusable anywhere else.",
-    rule: "§ 3",
+  [`${WIZARD}/-components`]: {
+    doc: "Части мастера, бесполезные где-либо ещё.",
+    rule: "Т3",
   },
-  "src/routes/react/wizard/-components/wizard-steps": {
-    doc: "The step indicator.",
-    use: "It reads context rather than props, which is why the page stays a composition.",
+  [`${WIZARD}/-components/wizard-steps`]: {
+    doc: "Индикатор шагов.",
+    use: "Читает контекст, а не пропсы, — поэтому страница остаётся композицией.",
   },
-  "src/routes/react/wizard/-components/wizard-steps/wizard-steps.tsx": {
-    doc: "Reads the step from context and writes it back. The page above passes nothing.",
-    use: "Compare with board-column: both avoid prop drilling, at two different scopes.",
-    rule: "§ 8",
+  [`${WIZARD}/-components/wizard-steps/wizard-steps.tsx`]: {
+    doc: "Читает шаг из контекста и пишет его обратно. Страница выше ничего не передаёт.",
+    use: "Импорт wizard.context.tsx разрешён: это role-файл предка, а не соседней ветки.",
+    rule: "Т7 · Т3",
   },
 
   /* ── shared ───────────────────────────────────────────────────────────── */
 
   "src/shared": {
-    doc: "Everything that belongs to no single route. It knows nothing about routes/ or app/ — the one invariant actually worth enforcing in CI.",
-    use: "Promote code here only on its third use, or on its first use from a second branch of the route tree.",
-    rule: "§ 2 · § 5",
+    doc: "Всё, что не принадлежит ни одному маршруту. Ничего не знает о routes/ и app/ — это проверяется в CI.",
+    use: "В shared/ попадает только то, что не знает домена (ui, lib), и сгенерированный контракт (api). Доменный код поднимается к общему предку в routes/, а не сюда.",
+    rule: "Т2 · Т4",
   },
   "src/shared/api": {
-    doc: "The data layer. In a real application this folder would be generated from an OpenAPI contract and never written by hand.",
-    use: "Treat generated files as read-only and extend them, rather than restating their types.",
-    rule: "§ 6",
+    doc: "Слой данных и единственная сетевая граница. В настоящем приложении эта папка генерируется из OpenAPI-контракта и руками не пишется.",
+    use: "Сгенерированные файлы — только для чтения. Расширяйте их типы, не переписывайте.",
+    rule: "Т8 · Т9",
   },
   "src/shared/api/mock-data.ts": {
-    doc: "Static stand-in for the API: the shapes play the part of generated types so the routes above can be written the way the spec expects.",
-    use: "Replace with a generated client and the route files keep working — they only depend on the shapes.",
-    rule: "§ 6",
+    doc: "Статическая замена API: формы данных играют роль сгенерированных типов, чтобы маршруты выше были написаны так, как требует архитектура.",
+    use: "Замените на сгенерированный клиент — файлы маршрутов продолжат работать, они зависят только от форм.",
+    rule: "Т8",
   },
 
   "src/shared/lib": {
-    doc: "Pure functions with no React in them.",
-    use: "If something here imports a component, it is in the wrong folder.",
+    doc: "Чистые функции без React.",
+    use: "Если файл здесь импортирует компонент — он не в той папке.",
   },
   "src/shared/lib/source-tree.ts": {
-    note: "The tree on the left is this repository, not a description of it.",
-    doc: "import.meta.glob hands over Vite's module graph, and routeForPath derives each URL with the same rules the generator applies — including the one that a dotted name is a role file, not a route. Nothing is maintained by hand.",
-    use: "Rename any file and watch it move in the tree, change its URL and relabel its outline, with no list to update.",
+    note: "Дерево слева — это сам репозиторий, а не его описание.",
+    doc: "import.meta.glob отдаёт граф модулей Vite, а routeForPath выводит URL каждого файла по тем же правилам, что и генератор, — включая то, что имя с точкой это role-файл, а не маршрут. Ничего не поддерживается руками.",
+    use: "Переименуйте любой файл — он переедет в дереве, сменит URL и подпись рамки без правки списков.",
   },
   "src/shared/lib/source-notes.ts": {
-    doc: "The prose you are reading. Separate from the tree on purpose: the tree is fact, this is opinion, and the two rot at different rates.",
-    use: "Add a key for any path. Development warns about notes for deleted files and about files nobody has described yet.",
+    doc: "Текст, который вы сейчас читаете. Отделён от дерева нарочно: дерево — факт, это — мнение, и устаревают они с разной скоростью.",
+    use: "Добавьте ключ для любого пути. В разработке консоль предупреждает о заметках к удалённым файлам и о файлах без заметок.",
+  },
+  "src/shared/lib/tour.ts": {
+    note: "Экскурсия: восемь шагов, каждый — URL, файл и одно требование.",
+    doc: "Мнение поверх фактов, как и эти заметки. Ссылки шагов собраны через linkOptions, поэтому переименованная папка ломает сборку и здесь.",
+    use: "Новый шаг — ещё один объект в массиве: заголовок, требование, текст, файл для выделения и ссылка.",
+    rule: "Т10",
   },
   "src/shared/lib/utils.ts": {
-    doc: "cn() — merges class names so a later Tailwind class wins over an earlier one.",
-    use: "Use it anywhere a component takes a className prop.",
+    doc: "cn() — склеивает классы так, что поздний класс Tailwind побеждает ранний.",
+    use: "Используйте везде, где компонент принимает className.",
   },
-
   "src/shared/lib/source-code.ts": {
-    doc: "The text of every file, loaded on demand through Vite's ?raw. What the reader sees is what is on disk, not a copy pasted into a document.",
-    use: "A glob never includes the file it is written in, so this one imports itself directly to stay readable.",
+    doc: "Текст каждого файла, загружаемый по требованию через ?raw. Читатель видит то, что лежит на диске, а не копию в документе.",
+    use: "Glob не включает файл, в котором написан, поэтому модуль импортирует сам себя напрямую.",
   },
   "src/shared/lib/highlight.ts": {
-    doc: "Shiki, loaded fine-grained: only the grammars this repository contains, only on first use, and with the JavaScript regex engine instead of the Oniguruma wasm.",
-    use: "Add a grammar by naming it here; nothing else changes, because the language is picked from the file extension.",
+    doc: "Shiki в точечной сборке: только нужные грамматики, только при первом использовании, с JavaScript-движком регулярок вместо Oniguruma wasm.",
+    use: "Грамматика добавляется одной строкой здесь; язык выбирается по расширению файла.",
   },
-  "src/shared/ui/explorer": {
-    doc: "The explanatory overlay: the tree, the note panel, and the shared idea of which file is being pointed at.",
-    use: "This is the only part of the app that is about the app. Everything else is an ordinary task tracker.",
+
+  [EXPLORER]: {
+    doc: "Поясняющий слой: дерево, панель заметок и общее представление о том, на какой файл сейчас указывают.",
+    use: "Единственная часть приложения, которая говорит о самом приложении. Всё остальное — обычный трекер задач.",
   },
   [`${EXPLORER}/explorer.context.tsx`]: {
-    doc: "Two channels kept apart. The selection is persistent and derived from the URL, so any navigation — a link in the app, a click in the tree, the back button — moves it without a caller remembering to. The hover is transient and only previews. Revealing a branch is a consequence of the selection changing, not of the click that changed it.",
-    use: "Read selectedPath and hoveredPath when you paint something — two weights, never in competition. activePath merges them and exists for the note panel alone.",
-    rule: "§ 8",
+    doc: "Два канала, разведённые намеренно. Выбор постоянный и выводится из URL, поэтому любая навигация — ссылка в приложении, клик в дереве, кнопка «назад» — двигает его сама. Наведение временное и только подсвечивает.",
+    use: "Рисуя что-то, читайте selectedPath и hoveredPath — два веса, которые не спорят. activePath объединяет их и нужен только панели заметок.",
+    rule: "Т7",
   },
   [`${EXPLORER}/explorer.tsx`]: {
-    doc: "The left column: legend plus tree, at full height.",
-    use: "Add a legend entry here when a fourth layer appears — which the spec says should make you stop and think first.",
+    doc: "Левая колонка: легенда и дерево во всю высоту.",
+    use: "Новая запись в легенде появится вместе с четвёртым слоем — а это повод остановиться и подумать.",
   },
   [`${EXPLORER}/file-tree.tsx`]: {
-    doc: "Renders the source tree and navigates on click. It shows each file's URL in the margin, so which files are addressable is visible at a glance.",
-    use: "Note the single cast inside: the tree derives a URL string at runtime, the one place typed navigation cannot reach.",
-    rule: "§ 10",
+    doc: "Рисует дерево исходников и навигирует по клику. Справа от файла — его URL, так сразу видно, какие файлы адресуемы.",
+    use: "Внутри один каст: дерево выводит URL-строку в рантайме — единственное место, куда типизированная навигация не дотягивается.",
+    rule: "Т10",
+  },
+  [`${EXPLORER}/tour-card.tsx`]: {
+    doc: "Текущий шаг экскурсии над приложением, о котором он рассказывает. Номер шага — search-параметр ?tour, поэтому экскурсию можно отправить ссылкой, а retainSearchParams в __root.tsx держит её при переходах по приложению.",
+    use: "Шаг выделяет свой файл уже после навигации — иначе переход сбросил бы выделение.",
+    rule: "Т7",
   },
   [`${EXPLORER}/note-panel.tsx`]: {
-    doc: "This panel. It follows activePath rather than the selection, so the outline and the words are always about the same file.",
-    use: "Everything shown here comes from source-notes.ts; nothing is hardcoded per file.",
+    doc: "Эта панель. Следует за activePath, а не за выбором, поэтому рамка и текст всегда об одном и том же файле.",
+    use: "Всё, что здесь показано, берётся из source-notes.ts; ничего не зашито под конкретный файл.",
   },
 
   [UI]: {
-    doc: "Presentational primitives that know no domain types. Knowing what a Task is disqualifies a component from this folder.",
-    use: "Before adding here, check the test: could this file be dropped into an unrelated app unchanged? If not, it belongs in the route tree.",
-    rule: "§ 5",
+    doc: "Презентационные примитивы без доменных типов. Знание о том, что такое задача, закрывает компоненту дорогу сюда.",
+    use: "Проверка перед добавлением: можно ли бросить этот файл в чужое приложение без изменений? Если нет — ему место в дереве маршрутов.",
+    rule: "Т4",
   },
   [`${UI}/boundary`]: {
-    doc: "The dashed outline that names the file rendering what is inside it.",
-    use: "Wrap anything you want to be explainable. One prop, a repository path.",
+    doc: "Пунктирная рамка, подписанная файлом, который рендерит её содержимое.",
+    use: "Оберните всё, что хотите сделать объяснимым. Один проп — путь в репозитории.",
   },
   [`${UI}/boundary/boundary.tsx`]: {
-    doc: "Takes a path and nothing else, and the tree reads the same filesystem — so a label and the tree cannot disagree.",
-    use: "Wrap a new component in a <Boundary> pointing at its path and it joins the map with no registration step.",
-    rule: "§ 5",
+    doc: "Принимает путь и больше ничего, а дерево читает ту же файловую систему — подпись и дерево не могут разойтись.",
+    use: "Оберните новый компонент в <Boundary> с его путём — он попадёт на карту без регистрации.",
   },
   [`${UI}/code`]: {
-    doc: "Renders source with highlighting.",
-    use: "Used by both readers in the app — the source view and the twin comparison — so they cannot drift apart in appearance.",
+    doc: "Показывает исходник с подсветкой.",
+    use: "Им пользуются оба читателя в приложении — просмотр исходника и сравнение близнецов, поэтому выглядят они одинаково.",
   },
   [`${UI}/code/code.tsx`]: {
-    doc: "Falls back to plain text while the grammar loads and if it fails: colour is a convenience, the code is the point. The markup it injects is Shiki's output over this repository's own files, never anything a visitor supplies.",
-    rule: "§ 5",
-    use: "Pass isShared to tint lines, which is how the comparison marks what the two twins have in common.",
+    doc: "Пока грамматика грузится или если она не загрузилась — простой текст: цвет удобен, но смысл в коде. Вставляемая разметка — вывод Shiki по файлам этого репозитория, никогда не пользовательский ввод.",
+    use: "Передайте isShared, чтобы подкрасить строки, — так сравнение отмечает общее у близнецов.",
   },
   [`${UI}/source-view`]: {
-    doc: "Renders a file as text with line numbers.",
-    use: "Open it from the note panel, or link straight to it — the file being read is a search param.",
-    rule: "§ 8",
+    doc: "Показывает файл как текст с номерами строк.",
+    use: "Открывается из панели заметок или ссылкой — читаемый файл лежит в search-параметре ?source.",
+    rule: "Т7",
   },
   [`${UI}/source-view/source-view.tsx`]: {
-    doc: "Loads a file on demand and prints it. No highlighting on purpose: the point is what the code says, not how it looks.",
-    use: "Reading a file is addressable, so a review comment can link to the exact source the reader should see.",
+    doc: "Грузит файл по требованию и печатает его.",
+    use: "Чтение файла адресуемо, поэтому в код-ревью можно дать ссылку ровно на тот исходник, который надо посмотреть.",
   },
   [`${UI}/form-actions`]: {
-    doc: "The submit and cancel row.",
-    use: "Pass the label in. A component that branches on create-versus-edit has taken on knowledge it should not have.",
+    doc: "Строка «отправить / отмена».",
+    use: "Подпись передаётся снаружи. Компонент, который ветвится на создание и редактирование, взял на себя лишнее знание.",
   },
   [`${UI}/form-actions/form-actions.tsx`]: {
-    doc: "Labels and handlers arrive as props, so “Create task” and “Save changes” need no branch inside.",
-    use: "This is how the twins share a component without sharing a mode flag.",
-    rule: "§ 5",
+    doc: "Подписи и обработчики приходят пропсами, поэтому «Создать задачу» и «Сохранить» не требуют ветвления внутри.",
+    use: "Так близнецы делят компонент, не деля флаг режима.",
+    rule: "Т4",
   },
   [`${UI}/button`]: {
-    doc: "shadcn's button, unmodified. Every clickable thing in the app is this, including links rendered with asChild.",
-    use: "Reach for a variant and a size before writing classes. A one-off button is a sign the variant list is missing something.",
+    doc: "Кнопка shadcn. Всё кликабельное в приложении — она, включая ссылки через asChild.",
+    use: "Сначала вариант и размер, потом классы. Разовая кнопка — признак, что в списке вариантов чего-то не хватает.",
   },
   [`${UI}/button/button.tsx`]: {
-    doc: "The `xs` size is the only addition to the stock file — the preview is dense and needed one.",
+    doc: "Единственное отличие от стокового файла — размер `xs`.",
   },
   [`${UI}/card`]: {
-    doc: "shadcn's card. Titled container for a form section.",
-    use: "Compose Card, CardHeader, CardTitle, CardContent; do not extend it with domain props.",
-    rule: "§ 5",
+    doc: "Карточка shadcn. Контейнер с заголовком для секции формы.",
+    use: "Собирайте из Card, CardHeader, CardTitle, CardContent; не добавляйте доменные пропсы.",
+    rule: "Т4",
   },
   [`${UI}/card/card.tsx`]: {
-    doc: "Both task forms compose it and it knows nothing about either, which is what earns it a place in shared.",
-    rule: "§ 5",
+    doc: "Её собирают обе формы задачи, а она не знает ни об одной — это и даёт ей место в shared.",
+    rule: "Т4",
   },
   [`${UI}/input`]: {
-    doc: "shadcn's input.",
-    use: "Always pair it with a Label and an id; the wizard shows the shape.",
+    doc: "Поле ввода shadcn.",
+    use: "Всегда в паре с Label и id; пример — в мастере.",
   },
-  [`${UI}/input/input.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/input/input.tsx`]: { doc: "shadcn без изменений." },
   [`${UI}/label`]: {
-    doc: "shadcn's label, on Radix.",
-    use: "htmlFor pointing at the input's id — that is what makes the label clickable and read aloud.",
+    doc: "Подпись shadcn на Radix.",
+    use: "htmlFor указывает на id поля — поэтому подпись кликабельна и читается скринридером.",
   },
-  [`${UI}/label/label.tsx`]: { doc: "Unmodified shadcn." },
-  [`${UI}/select`]: {
-    doc: "shadcn's select, on Radix.",
-    use: "Used by the header to switch stacks. It replaced a raw <select>, which could not be styled to match anything.",
+  [`${UI}/label/label.tsx`]: { doc: "shadcn без изменений." },
+  [`${UI}/tabs`]: {
+    doc: "Вкладки shadcn на Base UI.",
+    use: "Переключают превью и код в шапке превью.",
   },
-  [`${UI}/select/select.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/tabs/tabs.tsx`]: {
+    doc: "shadcn без изменений. CLI положил его в папку `@/` вне src/ из-за неверных алиасов — проверка границ такое больше не пропустит.",
+  },
   [`${UI}/table`]: {
-    doc: "shadcn's table primitives.",
-    use: "Do not use them directly in a route; go through data-table, which is the arrangement this app actually needs.",
+    doc: "Табличные примитивы shadcn.",
+    use: "Не используйте их в маршрутах напрямую — идите через data-table.",
   },
-  [`${UI}/table/table.tsx`]: { doc: "Unmodified shadcn." },
+  [`${UI}/table/table.tsx`]: { doc: "shadcn без изменений." },
   [`${UI}/data-table`]: {
-    doc: "The list primitive both tables are built on.",
-    use: "Give it rows and a row renderer; it decides nothing about the data.",
+    doc: "Примитив списка, на котором построены обе таблицы.",
+    use: "Дайте ему строки и колонки; о данных он ничего не решает.",
   },
   [`${UI}/data-table/data-table.tsx`]: {
-    doc: "A thin arrangement of shadcn's table primitives, generic over the row type and ignorant of Task and Project — which is precisely why it is allowed in shared.",
-    use: "Both tables in the app compose it while keeping their own columns and their own navigation. Columns are data, not markup, so a route describes what it shows rather than how a table is built.",
-    rule: "§ 5",
+    doc: "Тонкая компоновка табличных примитивов, обобщённая по типу строки и не знающая про Task и Project, — поэтому ей можно в shared.",
+    use: "Колонки — это данные, а не разметка: маршрут описывает, что показать, а не как собрать таблицу.",
+    rule: "Т4",
   },
   [`${UI}/skeleton`]: {
-    doc: "Placeholder bars standing in for content the example does not need to spell out.",
-    use: "Used deliberately throughout so structure stays the loudest thing on screen.",
+    doc: "Полосы-заглушки вместо содержимого, которое примеру не нужно.",
+    use: "Используются нарочно, чтобы громче всего на экране была структура.",
   },
   [`${UI}/skeleton/skeleton.tsx`]: {
-    doc: "shadcn's skeleton. It is used here for content the example leaves out rather than for loading, so call sites pass animate-none — a pulse would claim the app is waiting on something when it is not.",
-    use: "Give it a width class and animate-none. It is the reason the preview reads as architecture rather than as a product screenshot.",
+    doc: "Скелетон shadcn. Здесь он обозначает опущенное содержимое, а не загрузку, поэтому передаётся animate-none — пульсация врала бы, что приложение чего-то ждёт.",
+    use: "Ширина классом и animate-none. Из-за него превью читается как архитектура, а не как скриншот продукта.",
   },
   [`${UI}/badge`]: {
-    doc: "Small status label, straight from shadcn.",
-    use: "Used by the note panel for layer, role and spec reference.",
+    doc: "Маленькая метка статуса из shadcn.",
+    use: "Панель заметок показывает ею слой, роль и требование.",
   },
   [`${UI}/badge/badge.tsx`]: {
-    doc: "An unmodified shadcn component, kept as a file in the repository the way shadcn intends.",
-    use: "Edit it freely — there is no upstream to fight with.",
+    doc: "shadcn без изменений — файл в репозитории, как задумано shadcn.",
+    use: "Правьте свободно: апстрима, с которым пришлось бы бороться, нет.",
   },
   [`${UI}/tree-view`]: {
-    doc: "The tree component shadcn does not ship.",
-    use: "Copy this folder into another project; it depends only on Ark UI and the shadcn tokens.",
+    doc: "Дерево, которого нет в shadcn.",
+    use: "Копируйте папку в другой проект; она зависит только от Ark UI и токенов shadcn.",
   },
   [`${UI}/tree-view/tree-view.tsx`]: {
-    doc: "Ark UI supplies state, keyboard handling and ARIA; the appearance comes from the same shadcn tokens as everything else, so it does not read as a foreign component.",
-    use: "Style it by editing the class strings here, not by overriding from the outside.",
+    doc: "Ark UI даёт состояние, клавиатуру и ARIA; внешний вид — из тех же токенов shadcn, поэтому компонент не выглядит чужим.",
+    use: "Стилизуйте правкой классов здесь, а не переопределением снаружи.",
   },
 };
 

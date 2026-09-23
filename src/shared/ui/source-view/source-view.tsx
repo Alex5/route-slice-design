@@ -28,7 +28,7 @@ export function SourceView({ path }: { path: string }) {
   }, [path]);
 
   if (error) return <div className="p-4 text-xs text-destructive">{error}</div>;
-  if (!code) return <div className="p-4 text-xs text-muted-foreground">Reading {path}…</div>;
+  if (!code) return <div className="p-4 text-xs text-muted-foreground">Читаю {path}…</div>;
 
   return <Code code={code} path={path} className="numbered" />;
 }

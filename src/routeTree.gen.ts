@@ -9,327 +9,244 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CompareRouteImport } from './routes/compare'
-import { Route as AngularIndexRouteImport } from './routes/angular/index'
-import { Route as ReactIndexRouteImport } from './routes/react/index'
-import { Route as VueIndexRouteImport } from './routes/vue/index'
-import { Route as ReactProjectsIndexRouteImport } from './routes/react/projects/index'
-import { Route as ReactProjectsProjectIdRouteRouteImport } from './routes/react/projects/$projectId/route'
-import { Route as ReactWizardIndexRouteImport } from './routes/react/wizard/index'
-import { Route as ReactProjectsProjectIdIndexRouteImport } from './routes/react/projects/$projectId/index'
-import { Route as ReactProjectsProjectIdTasksIndexRouteImport } from './routes/react/projects/$projectId/tasks/index'
-import { Route as ReactProjectsProjectIdTasksTaskIdIndexRouteImport } from './routes/react/projects/$projectId/tasks/$taskId/index'
-import { Route as ReactProjectsProjectIdTasksNewIndexRouteImport } from './routes/react/projects/$projectId/tasks/new/index'
-import { Route as ReactProjectsProjectIdTasksTaskIdEditIndexRouteImport } from './routes/react/projects/$projectId/tasks/$taskId/edit/index'
+import { Route as compareCompareDotpageRouteImport } from './routes/compare/compare.page'
+import { Route as projectsProjectsDotpageRouteImport } from './routes/projects/projects.page'
+import { Route as projectsProjectIdProjectIdDotlayoutRouteImport } from './routes/projects/$projectId/project-id.layout'
+import { Route as wizardWizardDotpageRouteImport } from './routes/wizard/wizard.page'
+import { Route as projectsProjectIdProjectIdDotpageRouteImport } from './routes/projects/$projectId/project-id.page'
+import { Route as projectsProjectIdTasksTasksDotpageRouteImport } from './routes/projects/$projectId/tasks/tasks.page'
+import { Route as projectsProjectIdTasksTaskIdTaskIdDotpageRouteImport } from './routes/projects/$projectId/tasks/$taskId/task-id.page'
+import { Route as projectsProjectIdTasksNewNewDotpageRouteImport } from './routes/projects/$projectId/tasks/new/new.page'
+import { Route as projectsProjectIdTasksTaskIdEditEditDotpageRouteImport } from './routes/projects/$projectId/tasks/$taskId/edit/edit.page'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const compareCompareDotpageRoute = compareCompareDotpageRouteImport.update({
+  id: '/compare/',
+  path: '/compare/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CompareRoute = CompareRouteImport.update({
-  id: '/compare',
-  path: '/compare',
+const projectsProjectsDotpageRoute = projectsProjectsDotpageRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AngularIndexRoute = AngularIndexRouteImport.update({
-  id: '/angular/',
-  path: '/angular/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReactIndexRoute = ReactIndexRouteImport.update({
-  id: '/react/',
-  path: '/react/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VueIndexRoute = VueIndexRouteImport.update({
-  id: '/vue/',
-  path: '/vue/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReactProjectsIndexRoute = ReactProjectsIndexRouteImport.update({
-  id: '/react/projects/',
-  path: '/react/projects/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReactProjectsProjectIdRouteRoute =
-  ReactProjectsProjectIdRouteRouteImport.update({
-    id: '/react/projects/$projectId',
-    path: '/react/projects/$projectId',
+const projectsProjectIdProjectIdDotlayoutRoute =
+  projectsProjectIdProjectIdDotlayoutRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ReactWizardIndexRoute = ReactWizardIndexRouteImport.update({
-  id: '/react/wizard/',
-  path: '/react/wizard/',
+const wizardWizardDotpageRoute = wizardWizardDotpageRouteImport.update({
+  id: '/wizard/',
+  path: '/wizard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReactProjectsProjectIdIndexRoute =
-  ReactProjectsProjectIdIndexRouteImport.update({
+const projectsProjectIdProjectIdDotpageRoute =
+  projectsProjectIdProjectIdDotpageRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => ReactProjectsProjectIdRouteRoute,
+    getParentRoute: () => projectsProjectIdProjectIdDotlayoutRoute,
   } as any)
-const ReactProjectsProjectIdTasksIndexRoute =
-  ReactProjectsProjectIdTasksIndexRouteImport.update({
+const projectsProjectIdTasksTasksDotpageRoute =
+  projectsProjectIdTasksTasksDotpageRouteImport.update({
     id: '/tasks/',
     path: '/tasks/',
-    getParentRoute: () => ReactProjectsProjectIdRouteRoute,
+    getParentRoute: () => projectsProjectIdProjectIdDotlayoutRoute,
   } as any)
-const ReactProjectsProjectIdTasksTaskIdIndexRoute =
-  ReactProjectsProjectIdTasksTaskIdIndexRouteImport.update({
+const projectsProjectIdTasksTaskIdTaskIdDotpageRoute =
+  projectsProjectIdTasksTaskIdTaskIdDotpageRouteImport.update({
     id: '/tasks/$taskId/',
     path: '/tasks/$taskId/',
-    getParentRoute: () => ReactProjectsProjectIdRouteRoute,
+    getParentRoute: () => projectsProjectIdProjectIdDotlayoutRoute,
   } as any)
-const ReactProjectsProjectIdTasksNewIndexRoute =
-  ReactProjectsProjectIdTasksNewIndexRouteImport.update({
+const projectsProjectIdTasksNewNewDotpageRoute =
+  projectsProjectIdTasksNewNewDotpageRouteImport.update({
     id: '/tasks/new/',
     path: '/tasks/new/',
-    getParentRoute: () => ReactProjectsProjectIdRouteRoute,
+    getParentRoute: () => projectsProjectIdProjectIdDotlayoutRoute,
   } as any)
-const ReactProjectsProjectIdTasksTaskIdEditIndexRoute =
-  ReactProjectsProjectIdTasksTaskIdEditIndexRouteImport.update({
+const projectsProjectIdTasksTaskIdEditEditDotpageRoute =
+  projectsProjectIdTasksTaskIdEditEditDotpageRouteImport.update({
     id: '/tasks/$taskId/edit/',
     path: '/tasks/$taskId/edit/',
-    getParentRoute: () => ReactProjectsProjectIdRouteRoute,
+    getParentRoute: () => projectsProjectIdProjectIdDotlayoutRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/angular/': typeof AngularIndexRoute
-  '/react/': typeof ReactIndexRoute
-  '/vue/': typeof VueIndexRoute
-  '/react/projects/$projectId': typeof ReactProjectsProjectIdRouteRouteWithChildren
-  '/react/projects/': typeof ReactProjectsIndexRoute
-  '/react/wizard/': typeof ReactWizardIndexRoute
-  '/react/projects/$projectId/': typeof ReactProjectsProjectIdIndexRoute
-  '/react/projects/$projectId/tasks/': typeof ReactProjectsProjectIdTasksIndexRoute
-  '/react/projects/$projectId/tasks/$taskId/': typeof ReactProjectsProjectIdTasksTaskIdIndexRoute
-  '/react/projects/$projectId/tasks/new/': typeof ReactProjectsProjectIdTasksNewIndexRoute
-  '/react/projects/$projectId/tasks/$taskId/edit/': typeof ReactProjectsProjectIdTasksTaskIdEditIndexRoute
+  '/compare/': typeof compareCompareDotpageRoute
+  '/projects/': typeof projectsProjectsDotpageRoute
+  '/wizard/': typeof wizardWizardDotpageRoute
+  '/projects/$projectId': typeof projectsProjectIdProjectIdDotlayoutRouteWithChildren
+  '/projects/$projectId/': typeof projectsProjectIdProjectIdDotpageRoute
+  '/projects/$projectId/tasks/': typeof projectsProjectIdTasksTasksDotpageRoute
+  '/projects/$projectId/tasks/$taskId/': typeof projectsProjectIdTasksTaskIdTaskIdDotpageRoute
+  '/projects/$projectId/tasks/new/': typeof projectsProjectIdTasksNewNewDotpageRoute
+  '/projects/$projectId/tasks/$taskId/edit/': typeof projectsProjectIdTasksTaskIdEditEditDotpageRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/angular': typeof AngularIndexRoute
-  '/react': typeof ReactIndexRoute
-  '/vue': typeof VueIndexRoute
-  '/react/projects': typeof ReactProjectsIndexRoute
-  '/react/wizard': typeof ReactWizardIndexRoute
-  '/react/projects/$projectId': typeof ReactProjectsProjectIdIndexRoute
-  '/react/projects/$projectId/tasks': typeof ReactProjectsProjectIdTasksIndexRoute
-  '/react/projects/$projectId/tasks/$taskId': typeof ReactProjectsProjectIdTasksTaskIdIndexRoute
-  '/react/projects/$projectId/tasks/new': typeof ReactProjectsProjectIdTasksNewIndexRoute
-  '/react/projects/$projectId/tasks/$taskId/edit': typeof ReactProjectsProjectIdTasksTaskIdEditIndexRoute
+  '/compare': typeof compareCompareDotpageRoute
+  '/projects': typeof projectsProjectsDotpageRoute
+  '/wizard': typeof wizardWizardDotpageRoute
+  '/projects/$projectId': typeof projectsProjectIdProjectIdDotpageRoute
+  '/projects/$projectId/tasks': typeof projectsProjectIdTasksTasksDotpageRoute
+  '/projects/$projectId/tasks/$taskId': typeof projectsProjectIdTasksTaskIdTaskIdDotpageRoute
+  '/projects/$projectId/tasks/new': typeof projectsProjectIdTasksNewNewDotpageRoute
+  '/projects/$projectId/tasks/$taskId/edit': typeof projectsProjectIdTasksTaskIdEditEditDotpageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/angular/': typeof AngularIndexRoute
-  '/react/': typeof ReactIndexRoute
-  '/vue/': typeof VueIndexRoute
-  '/react/projects/$projectId': typeof ReactProjectsProjectIdRouteRouteWithChildren
-  '/react/projects/': typeof ReactProjectsIndexRoute
-  '/react/wizard/': typeof ReactWizardIndexRoute
-  '/react/projects/$projectId/': typeof ReactProjectsProjectIdIndexRoute
-  '/react/projects/$projectId/tasks/': typeof ReactProjectsProjectIdTasksIndexRoute
-  '/react/projects/$projectId/tasks/$taskId/': typeof ReactProjectsProjectIdTasksTaskIdIndexRoute
-  '/react/projects/$projectId/tasks/new/': typeof ReactProjectsProjectIdTasksNewIndexRoute
-  '/react/projects/$projectId/tasks/$taskId/edit/': typeof ReactProjectsProjectIdTasksTaskIdEditIndexRoute
+  '/compare/': typeof compareCompareDotpageRoute
+  '/projects/': typeof projectsProjectsDotpageRoute
+  '/wizard/': typeof wizardWizardDotpageRoute
+  '/projects/$projectId': typeof projectsProjectIdProjectIdDotlayoutRouteWithChildren
+  '/projects/$projectId/': typeof projectsProjectIdProjectIdDotpageRoute
+  '/projects/$projectId/tasks/': typeof projectsProjectIdTasksTasksDotpageRoute
+  '/projects/$projectId/tasks/$taskId/': typeof projectsProjectIdTasksTaskIdTaskIdDotpageRoute
+  '/projects/$projectId/tasks/new/': typeof projectsProjectIdTasksNewNewDotpageRoute
+  '/projects/$projectId/tasks/$taskId/edit/': typeof projectsProjectIdTasksTaskIdEditEditDotpageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/compare'
-    | '/angular/'
-    | '/react/'
-    | '/vue/'
-    | '/react/projects/$projectId'
-    | '/react/projects/'
-    | '/react/wizard/'
-    | '/react/projects/$projectId/'
-    | '/react/projects/$projectId/tasks/'
-    | '/react/projects/$projectId/tasks/$taskId/'
-    | '/react/projects/$projectId/tasks/new/'
-    | '/react/projects/$projectId/tasks/$taskId/edit/'
+    | '/compare/'
+    | '/projects/'
+    | '/wizard/'
+    | '/projects/$projectId'
+    | '/projects/$projectId/'
+    | '/projects/$projectId/tasks/'
+    | '/projects/$projectId/tasks/$taskId/'
+    | '/projects/$projectId/tasks/new/'
+    | '/projects/$projectId/tasks/$taskId/edit/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/compare'
-    | '/angular'
-    | '/react'
-    | '/vue'
-    | '/react/projects'
-    | '/react/wizard'
-    | '/react/projects/$projectId'
-    | '/react/projects/$projectId/tasks'
-    | '/react/projects/$projectId/tasks/$taskId'
-    | '/react/projects/$projectId/tasks/new'
-    | '/react/projects/$projectId/tasks/$taskId/edit'
+    | '/projects'
+    | '/wizard'
+    | '/projects/$projectId'
+    | '/projects/$projectId/tasks'
+    | '/projects/$projectId/tasks/$taskId'
+    | '/projects/$projectId/tasks/new'
+    | '/projects/$projectId/tasks/$taskId/edit'
   id:
     | '__root__'
-    | '/'
-    | '/compare'
-    | '/angular/'
-    | '/react/'
-    | '/vue/'
-    | '/react/projects/$projectId'
-    | '/react/projects/'
-    | '/react/wizard/'
-    | '/react/projects/$projectId/'
-    | '/react/projects/$projectId/tasks/'
-    | '/react/projects/$projectId/tasks/$taskId/'
-    | '/react/projects/$projectId/tasks/new/'
-    | '/react/projects/$projectId/tasks/$taskId/edit/'
+    | '/compare/'
+    | '/projects/'
+    | '/wizard/'
+    | '/projects/$projectId'
+    | '/projects/$projectId/'
+    | '/projects/$projectId/tasks/'
+    | '/projects/$projectId/tasks/$taskId/'
+    | '/projects/$projectId/tasks/new/'
+    | '/projects/$projectId/tasks/$taskId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  CompareRoute: typeof CompareRoute
-  AngularIndexRoute: typeof AngularIndexRoute
-  ReactIndexRoute: typeof ReactIndexRoute
-  VueIndexRoute: typeof VueIndexRoute
-  ReactProjectsProjectIdRouteRoute: typeof ReactProjectsProjectIdRouteRouteWithChildren
-  ReactProjectsIndexRoute: typeof ReactProjectsIndexRoute
-  ReactWizardIndexRoute: typeof ReactWizardIndexRoute
+  compareCompareDotpageRoute: typeof compareCompareDotpageRoute
+  projectsProjectsDotpageRoute: typeof projectsProjectsDotpageRoute
+  wizardWizardDotpageRoute: typeof wizardWizardDotpageRoute
+  projectsProjectIdProjectIdDotlayoutRoute: typeof projectsProjectIdProjectIdDotlayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compare': {
-      id: '/compare'
+    '/compare/': {
+      id: '/compare/'
       path: '/compare'
-      fullPath: '/compare'
-      preLoaderRoute: typeof CompareRouteImport
+      fullPath: '/compare/'
+      preLoaderRoute: typeof compareCompareDotpageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/angular/': {
-      id: '/angular/'
-      path: '/angular'
-      fullPath: '/angular/'
-      preLoaderRoute: typeof AngularIndexRouteImport
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof projectsProjectsDotpageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/react/': {
-      id: '/react/'
-      path: '/react'
-      fullPath: '/react/'
-      preLoaderRoute: typeof ReactIndexRouteImport
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof projectsProjectIdProjectIdDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/vue/': {
-      id: '/vue/'
-      path: '/vue'
-      fullPath: '/vue/'
-      preLoaderRoute: typeof VueIndexRouteImport
+    '/wizard/': {
+      id: '/wizard/'
+      path: '/wizard'
+      fullPath: '/wizard/'
+      preLoaderRoute: typeof wizardWizardDotpageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/react/projects/': {
-      id: '/react/projects/'
-      path: '/react/projects'
-      fullPath: '/react/projects/'
-      preLoaderRoute: typeof ReactProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/react/projects/$projectId': {
-      id: '/react/projects/$projectId'
-      path: '/react/projects/$projectId'
-      fullPath: '/react/projects/$projectId'
-      preLoaderRoute: typeof ReactProjectsProjectIdRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/react/wizard/': {
-      id: '/react/wizard/'
-      path: '/react/wizard'
-      fullPath: '/react/wizard/'
-      preLoaderRoute: typeof ReactWizardIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/react/projects/$projectId/': {
-      id: '/react/projects/$projectId/'
+    '/projects/$projectId/': {
+      id: '/projects/$projectId/'
       path: '/'
-      fullPath: '/react/projects/$projectId/'
-      preLoaderRoute: typeof ReactProjectsProjectIdIndexRouteImport
-      parentRoute: typeof ReactProjectsProjectIdRouteRoute
+      fullPath: '/projects/$projectId/'
+      preLoaderRoute: typeof projectsProjectIdProjectIdDotpageRouteImport
+      parentRoute: typeof projectsProjectIdProjectIdDotlayoutRoute
     }
-    '/react/projects/$projectId/tasks/': {
-      id: '/react/projects/$projectId/tasks/'
+    '/projects/$projectId/tasks/': {
+      id: '/projects/$projectId/tasks/'
       path: '/tasks'
-      fullPath: '/react/projects/$projectId/tasks/'
-      preLoaderRoute: typeof ReactProjectsProjectIdTasksIndexRouteImport
-      parentRoute: typeof ReactProjectsProjectIdRouteRoute
+      fullPath: '/projects/$projectId/tasks/'
+      preLoaderRoute: typeof projectsProjectIdTasksTasksDotpageRouteImport
+      parentRoute: typeof projectsProjectIdProjectIdDotlayoutRoute
     }
-    '/react/projects/$projectId/tasks/$taskId/': {
-      id: '/react/projects/$projectId/tasks/$taskId/'
+    '/projects/$projectId/tasks/$taskId/': {
+      id: '/projects/$projectId/tasks/$taskId/'
       path: '/tasks/$taskId'
-      fullPath: '/react/projects/$projectId/tasks/$taskId/'
-      preLoaderRoute: typeof ReactProjectsProjectIdTasksTaskIdIndexRouteImport
-      parentRoute: typeof ReactProjectsProjectIdRouteRoute
+      fullPath: '/projects/$projectId/tasks/$taskId/'
+      preLoaderRoute: typeof projectsProjectIdTasksTaskIdTaskIdDotpageRouteImport
+      parentRoute: typeof projectsProjectIdProjectIdDotlayoutRoute
     }
-    '/react/projects/$projectId/tasks/new/': {
-      id: '/react/projects/$projectId/tasks/new/'
+    '/projects/$projectId/tasks/new/': {
+      id: '/projects/$projectId/tasks/new/'
       path: '/tasks/new'
-      fullPath: '/react/projects/$projectId/tasks/new/'
-      preLoaderRoute: typeof ReactProjectsProjectIdTasksNewIndexRouteImport
-      parentRoute: typeof ReactProjectsProjectIdRouteRoute
+      fullPath: '/projects/$projectId/tasks/new/'
+      preLoaderRoute: typeof projectsProjectIdTasksNewNewDotpageRouteImport
+      parentRoute: typeof projectsProjectIdProjectIdDotlayoutRoute
     }
-    '/react/projects/$projectId/tasks/$taskId/edit/': {
-      id: '/react/projects/$projectId/tasks/$taskId/edit/'
+    '/projects/$projectId/tasks/$taskId/edit/': {
+      id: '/projects/$projectId/tasks/$taskId/edit/'
       path: '/tasks/$taskId/edit'
-      fullPath: '/react/projects/$projectId/tasks/$taskId/edit/'
-      preLoaderRoute: typeof ReactProjectsProjectIdTasksTaskIdEditIndexRouteImport
-      parentRoute: typeof ReactProjectsProjectIdRouteRoute
+      fullPath: '/projects/$projectId/tasks/$taskId/edit/'
+      preLoaderRoute: typeof projectsProjectIdTasksTaskIdEditEditDotpageRouteImport
+      parentRoute: typeof projectsProjectIdProjectIdDotlayoutRoute
     }
   }
 }
 
-interface ReactProjectsProjectIdRouteRouteChildren {
-  ReactProjectsProjectIdIndexRoute: typeof ReactProjectsProjectIdIndexRoute
-  ReactProjectsProjectIdTasksIndexRoute: typeof ReactProjectsProjectIdTasksIndexRoute
-  ReactProjectsProjectIdTasksTaskIdIndexRoute: typeof ReactProjectsProjectIdTasksTaskIdIndexRoute
-  ReactProjectsProjectIdTasksNewIndexRoute: typeof ReactProjectsProjectIdTasksNewIndexRoute
-  ReactProjectsProjectIdTasksTaskIdEditIndexRoute: typeof ReactProjectsProjectIdTasksTaskIdEditIndexRoute
+interface projectsProjectIdProjectIdDotlayoutRouteChildren {
+  projectsProjectIdProjectIdDotpageRoute: typeof projectsProjectIdProjectIdDotpageRoute
+  projectsProjectIdTasksTasksDotpageRoute: typeof projectsProjectIdTasksTasksDotpageRoute
+  projectsProjectIdTasksTaskIdTaskIdDotpageRoute: typeof projectsProjectIdTasksTaskIdTaskIdDotpageRoute
+  projectsProjectIdTasksNewNewDotpageRoute: typeof projectsProjectIdTasksNewNewDotpageRoute
+  projectsProjectIdTasksTaskIdEditEditDotpageRoute: typeof projectsProjectIdTasksTaskIdEditEditDotpageRoute
 }
 
-const ReactProjectsProjectIdRouteRouteChildren: ReactProjectsProjectIdRouteRouteChildren =
+const projectsProjectIdProjectIdDotlayoutRouteChildren: projectsProjectIdProjectIdDotlayoutRouteChildren =
   {
-    ReactProjectsProjectIdIndexRoute: ReactProjectsProjectIdIndexRoute,
-    ReactProjectsProjectIdTasksIndexRoute:
-      ReactProjectsProjectIdTasksIndexRoute,
-    ReactProjectsProjectIdTasksTaskIdIndexRoute:
-      ReactProjectsProjectIdTasksTaskIdIndexRoute,
-    ReactProjectsProjectIdTasksNewIndexRoute:
-      ReactProjectsProjectIdTasksNewIndexRoute,
-    ReactProjectsProjectIdTasksTaskIdEditIndexRoute:
-      ReactProjectsProjectIdTasksTaskIdEditIndexRoute,
+    projectsProjectIdProjectIdDotpageRoute:
+      projectsProjectIdProjectIdDotpageRoute,
+    projectsProjectIdTasksTasksDotpageRoute:
+      projectsProjectIdTasksTasksDotpageRoute,
+    projectsProjectIdTasksTaskIdTaskIdDotpageRoute:
+      projectsProjectIdTasksTaskIdTaskIdDotpageRoute,
+    projectsProjectIdTasksNewNewDotpageRoute:
+      projectsProjectIdTasksNewNewDotpageRoute,
+    projectsProjectIdTasksTaskIdEditEditDotpageRoute:
+      projectsProjectIdTasksTaskIdEditEditDotpageRoute,
   }
 
-const ReactProjectsProjectIdRouteRouteWithChildren =
-  ReactProjectsProjectIdRouteRoute._addFileChildren(
-    ReactProjectsProjectIdRouteRouteChildren,
+const projectsProjectIdProjectIdDotlayoutRouteWithChildren =
+  projectsProjectIdProjectIdDotlayoutRoute._addFileChildren(
+    projectsProjectIdProjectIdDotlayoutRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  CompareRoute: CompareRoute,
-  AngularIndexRoute: AngularIndexRoute,
-  ReactIndexRoute: ReactIndexRoute,
-  VueIndexRoute: VueIndexRoute,
-  ReactProjectsProjectIdRouteRoute:
-    ReactProjectsProjectIdRouteRouteWithChildren,
-  ReactProjectsIndexRoute: ReactProjectsIndexRoute,
-  ReactWizardIndexRoute: ReactWizardIndexRoute,
+  compareCompareDotpageRoute: compareCompareDotpageRoute,
+  projectsProjectsDotpageRoute: projectsProjectsDotpageRoute,
+  wizardWizardDotpageRoute: wizardWizardDotpageRoute,
+  projectsProjectIdProjectIdDotlayoutRoute:
+    projectsProjectIdProjectIdDotlayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

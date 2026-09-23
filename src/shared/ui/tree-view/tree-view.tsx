@@ -34,7 +34,7 @@ export function TreeViewLabel({ className, ...props }: React.ComponentProps<type
 }
 
 const nodeRowClass =
-  "group relative flex h-7 cursor-pointer select-none items-center gap-1.5 rounded-md pe-2 text-sm outline-none transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[selected]:bg-accent data-[selected]:text-accent-foreground data-[selected]:ring-1 data-[selected]:ring-inset data-[selected]:ring-border";
+  "group relative flex h-8 cursor-pointer select-none items-center gap-1.5 rounded-md pe-2 text-sm outline-none transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[selected]:bg-accent data-[selected]:text-accent-foreground data-[selected]:ring-1 data-[selected]:ring-inset data-[selected]:ring-border";
 
 export function TreeViewBranchControl({
   className,

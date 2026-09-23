@@ -1,15 +1,22 @@
-import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { Columns2 } from "lucide-react";
+import {
+  createRootRoute,
+  Link,
+  Outlet,
+  redirect,
+  retainSearchParams,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 
-import { WithProviders } from "#/app/providers/with-providers.tsx";
 import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
+import { TOUR } from "#/shared/lib/tour.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
 import { Explorer } from "#/shared/ui/explorer/explorer.tsx";
 import { NotePanel } from "#/shared/ui/explorer/note-panel.tsx";
+import { TourCard } from "#/shared/ui/explorer/tour-card.tsx";
 import { SourceView } from "#/shared/ui/source-view/source-view.tsx";
-
-import { Tabs, TabsList, TabsTrigger } from "../../@/components/ui/tabs.tsx";
+import { Tabs, TabsList, TabsTrigger } from "#/shared/ui/tabs/tabs.tsx";
 
 const FILE = "src/routes/__root.tsx";
 
@@ -22,23 +29,23 @@ function RootLayout() {
   const { source } = Route.useSearch();
 
   return (
-    <WithProviders>
-      <div className="flex h-dvh flex-col bg-background">
-        <SiteHeader />
+    <div className="flex h-dvh flex-col bg-background">
+      <SiteHeader />
 
-        {/* Source on the left, the running app in the middle, and the note about
-            whatever is outlined on the right — next to the thing it describes. */}
-        <div className="grid min-h-0 flex-1 grid-cols-12">
-          <Explorer />
-          <main className="min-h-0 p-4 col-span-6">
-            <Preview source={source} />
-          </main>
-          <div className="hidden min-h-0 flex-col lg:flex col-span-3">
-            <NotePanel />
-          </div>
+      {/* Source on the left, the running app in the middle, and the note about
+          whatever is outlined on the right — next to the thing it describes.
+          The side columns are fixed so the app gets whatever room is left. */}
+      <div className="grid min-h-0 flex-1 grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)_22rem]">
+        <Explorer />
+        <main className="flex min-h-0 flex-col gap-4 p-6">
+          <TourCard />
+          <Preview source={source} />
+        </main>
+        <div className="hidden min-h-0 xl:flex">
+          <NotePanel />
         </div>
       </div>
-    </WithProviders>
+    </div>
   );
 }
 
@@ -47,17 +54,18 @@ function Preview({ source }: { source?: string }) {
   const navigate = useNavigate();
   const { selectedPath } = useExplorer();
 
-  const showSource = (path: string | null) =>
+  function showSource(path: string | null) {
     navigate({
       to: ".",
       search: (previous: Record<string, unknown>) => ({ ...previous, source: path ?? undefined }),
     });
+  }
 
   const query = new URLSearchParams(search as Record<string, string>).toString();
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-background">
-      <div className="flex h-10 shrink-0 items-center gap-3 border-b px-4">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border bg-background">
+      <div className="flex h-12 shrink-0 items-center gap-4 border-b px-5">
         {/* The real address bar, not a drawing of one. */}
         <div className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground">
           {window.location.host}
@@ -69,27 +77,19 @@ function Preview({ source }: { source?: string }) {
         <Tabs value={source ? "code" : "preview"}>
           <TabsList variant="line">
             <TabsTrigger onClick={() => showSource(null)} value="preview">
-              preview
+              Превью
             </TabsTrigger>
             <TabsTrigger onClick={() => showSource(selectedPath)} value="code">
-              code
+              Код
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <Link
-          to="/compare"
-          className="flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
-          activeProps={{ className: "bg-accent text-accent-foreground" }}
-        >
-          <Columns2 className="size-3" />
-          Compare twins
-        </Link>
       </div>
 
       {source ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="flex h-9 shrink-0 items-center gap-3 border-b bg-card/40 px-4">
-            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
+          <div className="flex h-10 shrink-0 items-center border-b px-5">
+            <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground">
               {source}
             </span>
           </div>
@@ -98,7 +98,7 @@ function Preview({ source }: { source?: string }) {
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-10">
           <Boundary file={FILE} label="__root.tsx">
             <Outlet />
           </Boundary>
@@ -122,7 +122,7 @@ function NotFound() {
         <code>wizard.context.tsx</code> — is not a route either. The tree on the left prints a URL
         beside the files that have one.
       </p>
-      <Link to="/react/projects" className="inline-block text-xs text-layer-routes hover:underline">
+      <Link to="/projects" className="inline-block text-xs text-layer-routes hover:underline">
         Back to /projects
       </Link>
     </div>
@@ -132,8 +132,19 @@ function NotFound() {
 export const Route = createRootRoute({
   // A file being read is part of the address, so the view can be linked to —
   // the same rule the task filter follows.
-  validateSearch: (search: Record<string, unknown>): { source?: string } =>
-    typeof search.source === "string" ? { source: search.source } : {},
+  validateSearch: (search: Record<string, unknown>) => {
+    const valid: { source?: string; tour?: number } = {};
+    if (typeof search.source === "string") valid.source = search.source;
+    if (typeof search.tour === "number" && TOUR[search.tour]) valid.tour = search.tour;
+    return valid;
+  },
+  // The tour follows the reader through the app until they end it.
+  search: { middlewares: [retainSearchParams(["tour"])] },
+  // `/` has no page of its own — a root page would sit beside __root.tsx and
+  // name nothing. The app starts at the project list.
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/") throw redirect({ to: "/projects" });
+  },
   component: RootLayout,
   notFoundComponent: NotFound,
 });

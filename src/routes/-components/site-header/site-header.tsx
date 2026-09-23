@@ -1,105 +1,47 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
-import { VARIANTS, variantForPath } from "#/shared/lib/variants.ts";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "#/shared/ui/select/select.tsx";
-import pkg from "#package";
-
-/**
- * Versions come from package.json rather than from a list someone remembers to
- * update — the same reason the file tree is read from the filesystem.
- */
-function version(name: string) {
-  const raw =
-    (pkg.dependencies as Record<string, string>)[name] ??
-    (pkg.devDependencies as Record<string, string>)[name];
-
-  if (!raw) return null;
-
-  const [major, minor] = raw.replace(/^[^\d]*/, "").split(".");
-  return minor ? `${major}.${minor}` : major;
-}
-
-const STACK = [
-  { label: "React", package: "react" },
-  { label: "TanStack Router", package: "@tanstack/react-router" },
-  { label: "Vite", package: "vite" },
-  { label: "Tailwind", package: "tailwindcss" },
-  { label: "Ark UI", package: "@ark-ui/react" },
-  { label: "Shiki", package: "shiki" },
-];
+const navClass =
+  "rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function SiteHeader() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const current = variantForPath(pathname);
-
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b px-5">
+    <header className="flex h-16 shrink-0 items-center gap-8 border-b px-6">
       {/* The accent on "slice" is the same green the tree uses for the routes
           layer, so the wordmark names the thing it is about. */}
-      <span className="text-[15px] font-semibold lowercase tracking-tight">
+      <Link to="/projects" className="text-base font-semibold lowercase tracking-tight">
         route <span className="text-layer-routes">slice</span> design
-      </span>
+      </Link>
 
-      {/* The variant switches the whole application, stack included — so it is a
-          select over stacks, not a tab bar over screens. */}
-      <Select
-        value={current.id}
-        onValueChange={(id) => {
-          const next = VARIANTS.find((variant) => variant.id === id);
-          if (next) navigate({ to: next.to });
-        }}
-      >
-        <SelectTrigger size="sm" aria-label="Stack" className="hidden w-36 text-xs md:flex">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {VARIANTS.map((variant) => (
-            <SelectItem key={variant.id} value={variant.id} className="text-xs">
-              {variant.label}
-              {variant.built ? "" : " — not written yet"}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <div className="ms-auto flex items-center gap-1.5">
-        <div className="hidden items-center gap-1.5 lg:flex">
-          {STACK.map((item) => {
-            const number = version(item.package);
-            return (
-              <span
-                key={item.package}
-                className="rounded-md border border-white/10 px-2 py-1 text-[11px] text-muted-foreground"
-              >
-                {item.label}
-                {number && <span className="ms-1.5 font-mono text-foreground/70">{number}</span>}
-              </span>
-            );
-          })}
-        </div>
+      <nav className="ms-auto flex items-center gap-1">
+        {/* The way in for someone who has just opened the page. */}
+        <Link
+          to="/projects"
+          search={{ tour: 0 }}
+          className="me-2 rounded-md bg-layer-routes/15 px-3 py-1.5 text-sm font-medium text-layer-routes transition-colors hover:bg-layer-routes/25"
+        >
+          С чего начать
+        </Link>
+        <Link to="/compare" className={navClass} activeProps={{ className: "text-foreground" }}>
+          Сравнение близнецов
+        </Link>
+        {/* Rules for an AI assistant, served next to the app — see README. */}
+        <a href={`${import.meta.env.BASE_URL}llms.txt`} className={navClass}>
+          llms.txt
+        </a>
         <a
           href="https://github.com/Alex5/route-slice-design"
           target="_blank"
           rel="noreferrer"
-          aria-label="Source on GitHub"
-          title="Source on GitHub"
-          className="flex size-8 items-center justify-center rounded-md border border-white/10 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Исходники на GitHub"
+          title="Исходники на GitHub"
+          className="ms-2 flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            width="1em"
-            height="1em"
+            aria-hidden="true"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
-            data-v-2183b0a6=""
-            className="iconify iconify--simple-icons"
           >
             <path
               fill="currentColor"
@@ -107,7 +49,7 @@ export function SiteHeader() {
             ></path>
           </svg>
         </a>
-      </div>
+      </nav>
     </header>
   );
 }

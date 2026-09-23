@@ -26,7 +26,7 @@ export function DataTable<Row>({
   columns,
   getKey,
   onOpen,
-  empty = "Nothing here",
+  empty = "Пусто",
 }: {
   rows: Row[];
   columns: Column<Row>[];
@@ -48,10 +48,7 @@ export function DataTable<Row>({
       <TableBody>
         {rows.length === 0 ? (
           <TableRow className="hover:bg-transparent">
-            <TableCell
-              colSpan={columns.length}
-              className="py-6 text-center text-muted-foreground"
-            >
+            <TableCell colSpan={columns.length} className="py-6 text-center text-muted-foreground">
               {empty}
             </TableCell>
           </TableRow>

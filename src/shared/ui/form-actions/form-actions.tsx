@@ -16,7 +16,7 @@ export function FormActions({
   return (
     <div className="flex justify-end gap-2">
       <Button variant="ghost" size="sm" onClick={onCancel}>
-        Cancel
+        Отмена
       </Button>
       <Button size="sm" onClick={onSubmit}>
         {submitLabel}

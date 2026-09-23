@@ -1,5 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 
+import { WithProviders } from "#/app/providers/with-providers.tsx";
 import { routeTree } from "#/routeTree.gen.ts";
 
 /**
@@ -13,6 +14,9 @@ export const router = createRouter({
   basepath: import.meta.env.BASE_URL.replace(/\/$/, ""),
   defaultPreload: "intent",
   scrollRestoration: true,
+  // Провайдеры подключает app, а не __root: routes не импортирует app (Т2).
+  // InnerWrap, а не Wrap — провайдерам нужны хуки роутера.
+  InnerWrap: WithProviders,
 });
 
 declare module "@tanstack/react-router" {
