@@ -6,7 +6,7 @@ import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { DataTable, type Column } from "#/shared/ui/data-table/data-table.tsx";
 import { Skeleton } from "#/shared/ui/skeleton/skeleton.tsx";
 
-const FILE = "src/routes/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
+const FILE = "src/routes/projects/$projectId/tasks/_components/tasks-table/tasks-table.tsx";
 
 const columns: Column<Task>[] = [
   {

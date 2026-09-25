@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { ProjectTabs } from "#/routes/projects/$projectId/-components/project-tabs/project-tabs.tsx";
+import { ProjectTabs } from "#/routes/projects/$projectId/_components/project-tabs/project-tabs.tsx";
 import { loadProject } from "#/routes/projects/$projectId/project-id.loader.ts";
 import { useProject } from "#/shared/api/hooks/projects.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";

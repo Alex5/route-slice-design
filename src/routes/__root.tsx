@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { useDefaultLayout } from "react-resizable-panels";
 
-import { SiteHeader } from "#/routes/-components/site-header/site-header.tsx";
+import { SiteHeader } from "#/routes/_components/site-header/site-header.tsx";
 import { TOUR } from "#/shared/lib/tour.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { useExplorer } from "#/shared/ui/explorer/explorer.context.tsx";
@@ -139,7 +139,7 @@ function NotFound() {
       <h2 className="text-lg font-semibold tracking-tight">По этому адресу ничего нет</h2>
       <p className="text-sm leading-relaxed text-muted-foreground">
         Адресом становится только папка в <code>routes/</code> со страницей <code>*.page.tsx</code>.
-        Папка с дефисом исключена из роутинга, а файлы вроде <code>wizard.context.tsx</code> — не
+        Папка с подчёркиванием исключена из роутинга, а файлы вроде <code>wizard.context.tsx</code> — не
         маршруты. Если адрес правильный, значит, лоадер не нашёл запись: неизвестный id превращается
         в эту страницу ещё до рендера.
       </p>

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useId } from "react";
 
-import { WizardSteps } from "#/routes/wizard/-components/wizard-steps/wizard-steps.tsx";
+import { WizardSteps } from "#/routes/wizard/_components/wizard-steps/wizard-steps.tsx";
 import { useWizard, WizardProvider } from "#/routes/wizard/wizard.context.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";

@@ -23,7 +23,7 @@ export const TOUR = [
     title: "Страница только собирает",
     rule: "Т6",
     text: "projects.page.tsx — оркестратор: заголовок, таблица, кнопка, и ни строчки логики. «Новый проект» — Command Component: триггер, состояние и запись лежат в одной папке, а страница рендерит <AddProjectButton /> без пропсов. Новое действие — новая папка и одна строка JSX.",
-    focus: `${R}/-components/add-project-button`,
+    focus: `${R}/_components/add-project-button`,
     link: linkOptions({ to: "/projects", search: {} }),
   },
   {
@@ -37,7 +37,7 @@ export const TOUR = [
     title: "Состояние живёт там, откуда оно родом",
     rule: "Т7",
     text: "Фильтр «Открыта» — в адресе, а не в useState: ссылку можно отправить коллеге, она переживёт перезагрузку. Данные с сервера — в лоадере маршрута, общее для поддерева — в контексте рядом с маршрутом, локальное — в useState. Архитектура называет происхождение, инструмент выбирает стек.",
-    focus: `${TASKS}/-components/filters/status-filter.tsx`,
+    focus: `${TASKS}/_components/filters/status-filter.tsx`,
     link: linkOptions({
       to: "/projects/$projectId/tasks",
       params: { projectId: "apollo" },
@@ -47,8 +47,8 @@ export const TOUR = [
   {
     title: "Поднимать на втором использовании",
     rule: "Т4",
-    text: "Поля задачи нужны созданию и редактированию. Их ближайший общий предок — tasks/, поэтому блок лежит в tasks/-components, а не в shared: он знает, что такое задача. Первое использование — на месте, второе — у общего предка, в shared — только то, что не знает домена.",
-    focus: `${TASKS}/-components/task-form`,
+    text: "Поля задачи нужны созданию и редактированию. Их ближайший общий предок — tasks/, поэтому блок лежит в tasks/_components, а не в shared: он знает, что такое задача. Первое использование — на месте, второе — у общего предка, в shared — только то, что не знает домена.",
+    focus: `${TASKS}/_components/task-form`,
     link: linkOptions({
       to: "/projects/$projectId/tasks/new",
       params: { projectId: "apollo" },
@@ -66,7 +66,7 @@ export const TOUR = [
     title: "Импорт — только от предков",
     rule: "Т2 · Т3",
     text: "wizard-steps импортирует wizard.context.tsx — это файл предка, можно. Из projects/ нельзя: соседняя ветка. Родитель не берёт ничего у детей, а слои смотрят только вниз: app → routes → shared. Это проверяет pnpm lint, CI падает на нарушении.",
-    focus: "src/routes/wizard/-components/wizard-steps/wizard-steps.tsx",
+    focus: "src/routes/wizard/_components/wizard-steps/wizard-steps.tsx",
     link: linkOptions({ to: "/wizard", search: {} }),
   },
   {

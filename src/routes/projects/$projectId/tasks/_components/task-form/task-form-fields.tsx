@@ -6,7 +6,7 @@ import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Input } from "#/shared/ui/input/input.tsx";
 import { Label } from "#/shared/ui/label/label.tsx";
 
-const FILE = "src/routes/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
+const FILE = "src/routes/projects/$projectId/tasks/_components/task-form/task-form-fields.tsx";
 
 /**
  * Lifted here on the second use, not before.
@@ -19,7 +19,7 @@ export function TaskFormFields({ task }: { task?: Task }) {
   const id = useId();
 
   return (
-    <Boundary file={FILE} label="-components/task-form" className="space-y-4">
+    <Boundary file={FILE} label="_components/task-form" className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor={`${id}-title`}>Название</Label>
         <Input id={`${id}-title`} defaultValue={task?.title} placeholder="Что нужно сделать?" />

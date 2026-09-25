@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { TaskFormFields } from "#/routes/projects/$projectId/tasks/-components/task-form/task-form-fields.tsx";
+import { TaskFormFields } from "#/routes/projects/$projectId/tasks/_components/task-form/task-form-fields.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "#/shared/ui/card/card.tsx";
 import { FormActions } from "#/shared/ui/form-actions/form-actions.tsx";

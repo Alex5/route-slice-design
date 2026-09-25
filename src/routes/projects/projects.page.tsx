@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AddProjectButton } from "#/routes/projects/-components/add-project-button/add-project-button.tsx";
-import { ProjectsTable } from "#/routes/projects/-components/projects-table/projects-table.tsx";
+import { AddProjectButton } from "#/routes/projects/_components/add-project-button/add-project-button.tsx";
+import { ProjectsTable } from "#/routes/projects/_components/projects-table/projects-table.tsx";
 import { loadProjects } from "#/routes/projects/projects.loader.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 

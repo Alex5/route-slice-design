@@ -25,7 +25,7 @@ function roleFile(dir: string, role: "page" | "layout") {
 /**
  * The route tree, read from folders (Т1, Т5): a folder is a URL segment,
  * `*.page.tsx` is what that URL shows, `*.layout.tsx` wraps everything below it.
- * Dash-prefixed folders and every other file are not routes.
+ * Underscore-prefixed folders and every other file are not routes.
  *
  * The generator's own convention wants `index.tsx` / `route.tsx` and splits
  * file names on dots, so `projects/projects.page.tsx` would come out as
@@ -35,7 +35,7 @@ function routesIn(dir: string): VirtualRouteNode[] {
   const page = roleFile(dir, "page");
 
   const folders = readdirSync(join(ROUTES, dir), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("-"))
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"))
     .map((entry) => {
       const path = join(dir, entry.name);
       const layout = roleFile(path, "layout");

@@ -4,7 +4,7 @@ import { TASK_STATUS_LABEL, TASK_STATUSES, type TaskStatus } from "#/shared/api/
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Button } from "#/shared/ui/button/button.tsx";
 
-const FILE = "src/routes/projects/$projectId/tasks/-components/filters/status-filter.tsx";
+const FILE = "src/routes/projects/$projectId/tasks/_components/filters/status-filter.tsx";
 
 // getRouteApi instead of importing the route file: the component reaches the
 // route it lives under without a sibling import.

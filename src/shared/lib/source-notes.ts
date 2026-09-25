@@ -75,19 +75,19 @@ export const sourceNotes: Record<string, SourceNote> = {
 
   "src/routes": {
     doc: "Дерево URL. Каждая папка здесь — сегмент пути, поэтому место кода определяется адресной строкой, а не соглашением, которое надо помнить.",
-    use: "Нужен URL — создайте папку. Папку, которая не должна стать адресом, начните с дефиса.",
+    use: "Нужен URL — создайте папку. Папку, которая не должна стать адресом, начните с подчёркивания.",
     rule: "Т1",
   },
-  "src/routes/-components": {
+  "src/routes/_components": {
     doc: "Обвязка, общая для всех URL. Дефис в начале работает и в корне routes/ — ровно как глубже.",
     use: "Кладите сюда только то, что должно быть на каждой странице; всё более узкое принадлежит вложенному маршруту.",
     rule: "Т5",
   },
-  "src/routes/-components/site-header": {
+  "src/routes/_components/site-header": {
     doc: "Шапка приложения: логотип, навигация, ссылка на исходники.",
     use: "Единственное место, где меняется брендинг.",
   },
-  "src/routes/-components/site-header/site-header.tsx": {
+  "src/routes/_components/site-header/site-header.tsx": {
     doc: "Логотип нарочно перекликается с Feature-Sliced Design: это противоположный ответ на тот же вопрос — слайс это маршрут, а не фича.",
     use: "Ссылка на llms.txt берёт базовый путь из import.meta.env.BASE_URL, поэтому работает и на GitHub Pages.",
   },
@@ -118,7 +118,7 @@ export const sourceNotes: Record<string, SourceNote> = {
   [`${R}/projects.page.tsx`]: {
     role: "page",
     doc: "Оркестратор: заголовок, список, действие. Своей сетевой и бизнес-логики нет.",
-    use: "Держите страницы такими же тонкими. Когда страница перерастает композицию, опускайте вес в -components.",
+    use: "Держите страницы такими же тонкими. Когда страница перерастает композицию, опускайте вес в _components.",
     rule: "Т6",
   },
   [`${R}/projects.loader.ts`]: {
@@ -126,28 +126,28 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Лоадер страницы: кладёт список проектов в кэш до рендера. Таблица читает его через useProjects() — страница ничего ей не передаёт.",
     rule: "Т7",
   },
-  [`${R}/-components`]: {
+  [`${R}/_components`]: {
     doc: "Дефис исключает папку из роутинга — посмотрите в адресную строку, здесь ничего не адресуемо. Всё внутри принадлежит /projects и больше никому.",
     use: "Компонент попадает сюда в момент, когда он нужен второй раз на этой странице, — не раньше.",
     rule: "Т3 · Т4",
   },
-  [`${R}/-components/add-project-button`]: {
+  [`${R}/_components/add-project-button`]: {
     role: "Command Component",
     doc: "Одно действие пользователя целиком: триггер, состояние диалога и сама запись. Имя в форме глагол-сущность-button, поэтому список папок читается как список того, что может пользователь.",
     use: "Скопируйте папку, чтобы добавить ещё одно действие. Новое действие не трогает существующих файлов, кроме одной строки JSX на странице.",
     rule: "Т6",
   },
-  [`${R}/-components/add-project-button/add-project-button.tsx`]: {
+  [`${R}/_components/add-project-button/add-project-button.tsx`]: {
     doc: "Сам владеет своим состоянием. Страница рендерит <AddProjectButton /> без пропсов и не знает, что происходит по нажатию.",
     use: "Если файл перевалит за ~120 строк или получит вторую запись — вынесите логику в соседний хук, разметку оставьте здесь.",
     rule: "Т6",
   },
-  [`${R}/-components/projects-table`]: {
+  [`${R}/_components/projects-table`]: {
     doc: "Список проектов в том виде, в каком он нужен этой странице.",
     use: "Держите его здесь, пока проекты перечисляет только /projects. Второй список где-то ещё — повод поднять.",
     rule: "Т4",
   },
-  [`${R}/-components/projects-table/projects-table.tsx`]: {
+  [`${R}/_components/projects-table/projects-table.tsx`]: {
     doc: "Сам читает данные и сам навигирует, поэтому странице выше не нужна обвязка.",
     use: "Замените импорт моков на хук запроса — выше этого файла ничего не изменится.",
     rule: "Т7",
@@ -158,7 +158,7 @@ export const sourceNotes: Record<string, SourceNote> = {
 
   [P]: {
     doc: "Динамический сегмент — настоящая папка. Всё, что относится к одному проекту, лежит в ней, на той же глубине, что и в URL.",
-    use: "То, что общее для нескольких страниц проекта, — в -components этой папки, а не в shared/.",
+    use: "То, что общее для нескольких страниц проекта, — в _components этой папки, а не в shared/.",
     rule: "Т1",
   },
   [`${P}/project-id.layout.tsx`]: {
@@ -179,16 +179,16 @@ export const sourceNotes: Record<string, SourceNote> = {
     use: "Лэйаут подключает его одной строкой — loader: loadProject, а данные читает хуком useProject({ projectId }). Ключей запросов в маршрутах нет.",
     rule: "Т7",
   },
-  [`${P}/-components`]: {
+  [`${P}/_components`]: {
     doc: "Общее для всех страниц этого проекта и ни для чего снаружи — ровно условие, чтобы лежать уровнем выше, а не в shared/.",
     use: "Переносите компонент сюда при втором использовании внутри проекта.",
     rule: "Т4",
   },
-  [`${P}/-components/project-tabs`]: {
+  [`${P}/_components/project-tabs`]: {
     doc: "Навигация по разделам проекта.",
     use: "Вкладка добавляется одним <Link>; цель уже должна существовать как папка, иначе сборка упадёт.",
   },
-  [`${P}/-components/project-tabs/project-tabs.tsx`]: {
+  [`${P}/_components/project-tabs/project-tabs.tsx`]: {
     doc: "Ни одного строкового пути в JSX: <Link to> типизирован сгенерированным деревом, поэтому переименование папки ломает сборку, а не приложение.",
     use: "Никогда не собирайте URL руками. Если у вас в руках строка — вы обходите роутер.",
     rule: "Т10",
@@ -203,7 +203,7 @@ export const sourceNotes: Record<string, SourceNote> = {
   [`${TASKS}/tasks.page.tsx`]: {
     role: "page",
     doc: "Оркестратор: заголовок, фильтр, таблица, ссылка на создание. Владеет контрактом search-параметров этого URL и ничем больше.",
-    use: "Новый фильтр — расширьте validateSearch здесь и читайте его в компоненте из -components/filters.",
+    use: "Новый фильтр — расширьте validateSearch здесь и читайте его в компоненте из _components/filters.",
     rule: "Т6 · Т7",
   },
   [`${TASKS}/tasks.loader.ts`]: {
@@ -211,38 +211,38 @@ export const sourceNotes: Record<string, SourceNote> = {
     doc: "Запрос списка задач и лоадер страницы. Фильтр по статусу к запросу не относится: он в URL, и страница применяет его к уже загруженному списку.",
     rule: "Т7",
   },
-  [`${TASKS}/-components`]: {
+  [`${TASKS}/_components`]: {
     doc: "То, что нужно нескольким URL задач, но ничему вне раздела задач.",
     use: "Здесь три вещи по трём разным причинам: фильтры и таблица обслуживают список, форма — обе страницы записи.",
     rule: "Т4",
   },
-  [`${TASKS}/-components/filters`]: {
+  [`${TASKS}/_components/filters`]: {
     doc: "Контролы, которые пишут в URL, а не в состояние компонента.",
     use: "Каждый фильтр — отдельный файл; каждый читает и пишет один search-параметр.",
     rule: "Т7",
   },
-  [`${TASKS}/-components/filters/status-filter.tsx`]: {
+  [`${TASKS}/_components/filters/status-filter.tsx`]: {
     doc: "Состояние фильтра живёт в search-параметрах маршрута, а не в useState: ссылка переживает перезагрузку и её можно отправить коллеге. Кликните статус и посмотрите на адресную строку.",
-    use: "До своего маршрута он дотягивается через getRouteApi, а не импортом файла страницы, — так файл из -components общается с маршрутом без импорта соседа.",
+    use: "До своего маршрута он дотягивается через getRouteApi, а не импортом файла страницы, — так файл из _components общается с маршрутом без импорта соседа.",
     rule: "Т7 · Т3",
   },
-  [`${TASKS}/-components/tasks-table`]: {
+  [`${TASKS}/_components/tasks-table`]: {
     doc: "Список задач проекта.",
     use: "Представление — здесь, фильтрация — на странице: таблица рисует те строки, что ей дали.",
   },
-  [`${TASKS}/-components/tasks-table/tasks-table.tsx`]: {
+  [`${TASKS}/_components/tasks-table/tasks-table.tsx`]: {
     doc: "Знает, как выглядит задача и как к ней перейти; какие задачи показывать, решает страница выше.",
     use: "Колонка меняется здесь. Набор строк — на странице.",
     composedOf: [`${UI}/data-table/data-table.tsx`],
   },
-  [`${TASKS}/-components/task-form`]: {
+  [`${TASKS}/_components/task-form`]: {
     role: "lifted block",
     note: "Поднят сюда на втором использовании — не раньше.",
     doc: "Эти поля нужны обеим формам, а их ближайший общий предок — tasks/. Поэтому блок лежит уровнем выше, а не в shared/: он знает, что такое задача, и именно это закрывает ему дорогу в shared/ui.",
     use: "Правило в действии: появился второй потребитель — переносите код к ближайшему общему предку, и не дальше.",
     rule: "Т4",
   },
-  [`${TASKS}/-components/task-form/task-form-fields.tsx`]: {
+  [`${TASKS}/_components/task-form/task-form-fields.tsx`]: {
     doc: "Набор полей, который рендерят обе страницы записи. Принимает необязательную задачу — это единственное отличие создания от редактирования.",
     use: "Добавьте поле здесь один раз — оно появится в обеих формах. Поле нужно только одной — кладите его в её страницу.",
     rule: "Т4",
@@ -260,7 +260,7 @@ export const sourceNotes: Record<string, SourceNote> = {
     rule: "Т4",
     composedOf: [
       `${UI}/card/card.tsx`,
-      `${TASKS}/-components/task-form/task-form-fields.tsx`,
+      `${TASKS}/_components/task-form/task-form-fields.tsx`,
       `${UI}/form-actions/form-actions.tsx`,
     ],
   },
@@ -293,7 +293,7 @@ export const sourceNotes: Record<string, SourceNote> = {
     rule: "Т4",
     composedOf: [
       `${UI}/card/card.tsx`,
-      `${TASKS}/-components/task-form/task-form-fields.tsx`,
+      `${TASKS}/_components/task-form/task-form-fields.tsx`,
       `${UI}/form-actions/form-actions.tsx`,
     ],
   },
@@ -318,15 +318,15 @@ export const sourceNotes: Record<string, SourceNote> = {
     use: "Обратите внимание, где стоит провайдер: внутри страницы, а не в app/providers, потому что выше этого маршрута он никому не нужен.",
     rule: "Т7",
   },
-  [`${WIZARD}/-components`]: {
+  [`${WIZARD}/_components`]: {
     doc: "Части мастера, бесполезные где-либо ещё.",
     rule: "Т3",
   },
-  [`${WIZARD}/-components/wizard-steps`]: {
+  [`${WIZARD}/_components/wizard-steps`]: {
     doc: "Индикатор шагов.",
     use: "Читает контекст, а не пропсы, — поэтому страница остаётся композицией.",
   },
-  [`${WIZARD}/-components/wizard-steps/wizard-steps.tsx`]: {
+  [`${WIZARD}/_components/wizard-steps/wizard-steps.tsx`]: {
     doc: "Читает шаг из контекста и пишет его обратно. Страница выше ничего не передаёт.",
     use: "Импорт wizard.context.tsx разрешён: это role-файл предка, а не соседней ветки.",
     rule: "Т7 · Т3",

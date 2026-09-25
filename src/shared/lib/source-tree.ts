@@ -38,14 +38,14 @@ const ROUTE_FILE = /\.(page|layout)\.tsx$/;
 /**
  * Derives the URL a route file answers on, mirroring the tree vite.config.ts
  * describes to the generator: a `*.page.tsx` or `*.layout.tsx` answers on its
- * folder, a `-`-prefixed folder is excluded from routing, and anything else —
+ * folder, a `_`-prefixed folder is excluded from routing, and anything else —
  * `wizard.context.tsx`, `__root.tsx` — answers no URL of its own.
  */
 export function routeForPath(path: string): string | null {
   if (!path.startsWith("src/routes/") || !ROUTE_FILE.test(path)) return null;
 
   const folders = path.slice("src/routes/".length).split("/").slice(0, -1);
-  if (folders.some((segment) => segment.startsWith("-"))) return null;
+  if (folders.some((segment) => segment.startsWith("_"))) return null;
 
   return `/${folders.map((segment) => PARAMS[segment] ?? segment).join("/")}`;
 }

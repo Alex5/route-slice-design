@@ -2,14 +2,14 @@
 //
 // Т2. Слои: app → routes → shared, зависимости только вниз.
 // Т3. Ветки маршрутов изолированы: из routes/ можно импортировать только код
-//     своих предков — их -components/ и role-файлы. Соседняя ветка и сегменты
-//     ниже по дереву — никогда. Файл маршрута не импортирует никто: к маршруту
-//     обращаются через getRouteApi.
+//     своих предков — их _components/, _hooks/, _utils/ и role-файлы.
+//     Соседняя ветка и сегменты ниже по дереву — никогда. Файл маршрута не
+//     импортирует никто: к маршруту обращаются через getRouteApi.
 // Т5. Файлы сегмента называются по нему: projects.page.tsx,
-//     project-id.layout.tsx, tasks.loader.ts, tasks.hooks.ts, wizard.context.tsx. index.tsx и
+//     project-id.layout.tsx, tasks.loader.ts, wizard.context.tsx. index.tsx и
 //     route.tsx запрещены. В каждой папке-сегменте есть *.page.tsx или
-//     *.layout.tsx. Папка с дефисом одна — -components/: хуки и утилиты
-//     живут в файлах сегмента, а не в папках, чтобы дерево показывало маршруты.
+//     *.layout.tsx. Папки не-маршруты начинаются с _ и их три: _components/,
+//     _hooks/, _utils/.
 // Т9. Запросы — только в shared/api: в routes/ нет useQuery, useSuspenseQuery,
 //     queryOptions, queryKey и fetch — страница вызывает хук из shared/api/hooks.
 //
@@ -26,7 +26,9 @@ const ROUTE_FILE = /\.(page|layout)\.tsx$/;
 /** То, чему место в shared/api/hooks, а не в маршрутах (Т9). */
 const QUERY_CODE = /\b(useQuery|useSuspenseQuery|queryOptions|queryKey|fetch)\s*[(:]/;
 
-const SEGMENT_ROLES = ["page", "layout", "loader", "context", "store", "hooks", "utils"];
+const SEGMENT_ROLES = ["page", "layout", "loader", "context", "store"];
+/** Папки не-маршруты внутри сегмента (Т5). */
+const HIDDEN_FOLDERS = ["_components", "_hooks", "_utils"];
 
 function layerOf(path) {
   if (path.startsWith("src/routes/")) return "routes";
@@ -39,12 +41,12 @@ const ALLOWED = { app: ["app", "routes", "shared"], routes: ["routes", "shared"]
 
 /**
  * Владелец файла — папка, в чьё поддерево он входит: путь до первого сегмента
- * с дефисом (`-components`) или просто папка файла.
+ * с подчёркиванием (`_components`) или просто папка файла.
  */
 function ownerOf(path) {
   const segments = dirname(path).split("/");
-  const dash = segments.findIndex((segment) => segment.startsWith("-"));
-  return (dash === -1 ? segments : segments.slice(0, dash)).join("/");
+  const hidden = segments.findIndex((segment) => segment.startsWith("_"));
+  return (hidden === -1 ? segments : segments.slice(0, hidden)).join("/");
 }
 
 /** `$projectId` → `project-id`: имя, которое должен носить файл маршрута сегмента. */
@@ -87,11 +89,11 @@ function importProblem(from, specifier) {
 function nameProblem(path) {
   if (layerOf(path) !== "routes") return null;
 
-  const dash = path.split("/").find((segment) => segment.startsWith("-"));
-  if (dash && dash !== "-components") {
-    return `Т5: папка ${dash} не нужна — хуки и утилиты сегмента живут в <сегмент>.hooks.ts и <сегмент>.utils.ts`;
+  const hidden = dirname(path).split("/").find((segment) => segment.startsWith("_"));
+  if (hidden && !HIDDEN_FOLDERS.includes(hidden)) {
+    return `Т5: папка ${hidden} не нужна — не-маршруты живут в ${HIDDEN_FOLDERS.join(", ")}`;
   }
-  if (dash) return null;
+  if (hidden) return null;
 
   const name = basename(path);
   if (path === "src/routes/__root.tsx") return null;
@@ -104,7 +106,7 @@ function nameProblem(path) {
     return `Т5: ${name} запрещён — назовите файл ${segment}.page.tsx или ${segment}.layout.tsx`;
   }
   if (!role || !SEGMENT_ROLES.includes(role)) {
-    return `Т5: в папке сегмента лежат только файлы ${expected}; компоненты — в -components/`;
+    return `Т5: в папке сегмента лежат только файлы ${expected}; компоненты, хуки и утилиты — в _components/, _hooks/, _utils/`;
   }
   if (!name.startsWith(`${segment}.${role}.`)) {
     return `Т5: файл сегмента называется по нему — ${segment}.${role}${name.slice(name.lastIndexOf("."))}`;
@@ -116,7 +118,7 @@ function nameProblem(path) {
 /** Папки-сегменты без *.page.tsx и *.layout.tsx: у сегмента всегда есть страница или лэйаут. */
 function* emptySegments(dir) {
   const entries = readdirSync(dir, { withFileTypes: true });
-  const folders = entries.filter((entry) => entry.isDirectory() && !entry.name.startsWith("-"));
+  const folders = entries.filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"));
 
   if (!entries.some((entry) => entry.isFile() && ROUTE_FILE.test(entry.name))) yield dir;
   for (const folder of folders) yield* emptySegments(join(dir, folder.name));
@@ -153,7 +155,7 @@ for (const absolute of files(join(root, "src"))) {
 }
 
 for (const folder of readdirSync(join(root, "src/routes"), { withFileTypes: true })) {
-  if (!folder.isDirectory() || folder.name.startsWith("-")) continue;
+  if (!folder.isDirectory() || folder.name.startsWith("_")) continue;
   for (const empty of emptySegments(join(root, "src/routes", folder.name))) {
     const segment = basename(empty);
     found.push(

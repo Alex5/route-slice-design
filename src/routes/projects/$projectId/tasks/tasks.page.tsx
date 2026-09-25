@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { StatusFilter } from "#/routes/projects/$projectId/tasks/-components/filters/status-filter.tsx";
-import { TasksTable } from "#/routes/projects/$projectId/tasks/-components/tasks-table/tasks-table.tsx";
+import { StatusFilter } from "#/routes/projects/$projectId/tasks/_components/filters/status-filter.tsx";
+import { TasksTable } from "#/routes/projects/$projectId/tasks/_components/tasks-table/tasks-table.tsx";
 import { loadTasks } from "#/routes/projects/$projectId/tasks/tasks.loader.ts";
 import { useTasks } from "#/shared/api/hooks/tasks.ts";
 import { TASK_STATUSES, type TaskStatus } from "#/shared/api/mock-data.ts";

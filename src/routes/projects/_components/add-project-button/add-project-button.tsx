@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Button } from "#/shared/ui/button/button.tsx";
 
-const FILE = "src/routes/projects/-components/add-project-button/add-project-button.tsx";
+const FILE = "src/routes/projects/_components/add-project-button/add-project-button.tsx";
 
 /**
  * A Command Component: trigger, dialog state and the write itself in one

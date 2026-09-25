@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "#/shared/lib/utils.ts";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 
-const FILE = "src/routes/projects/$projectId/-components/project-tabs/project-tabs.tsx";
+const FILE = "src/routes/projects/$projectId/_components/project-tabs/project-tabs.tsx";
 
 const linkClass =
   "rounded-md px-2.5 py-1 text-xs transition-colors bg-secondary text-secondary-foreground hover:bg-accent";
@@ -15,7 +15,7 @@ const activeClass = "bg-primary text-primary-foreground hover:bg-primary";
  */
 export function ProjectTabs({ projectId }: { projectId: string }) {
   return (
-    <Boundary file={FILE} label="-components/project-tabs" className="pb-3 pt-6">
+    <Boundary file={FILE} label="_components/project-tabs" className="pb-3 pt-6">
       <div className="flex items-center gap-2">
         <Link
           to="/projects/$projectId"

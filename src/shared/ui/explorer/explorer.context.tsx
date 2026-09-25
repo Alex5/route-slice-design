@@ -92,7 +92,7 @@ export function ExplorerProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // A folder that is not a segment (`-components`, `shared`) has neither a
+        // A folder that is not a segment (`_components`, `shared`) has neither a
         // URL nor code of its own; selecting it is all a click can mean.
         if (!hasSource(path)) return;
 

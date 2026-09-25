@@ -2,7 +2,7 @@ import { useWizard } from "#/routes/wizard/wizard.context.tsx";
 import { Boundary } from "#/shared/ui/boundary/boundary.tsx";
 import { Button } from "#/shared/ui/button/button.tsx";
 
-const FILE = "src/routes/wizard/-components/wizard-steps/wizard-steps.tsx";
+const FILE = "src/routes/wizard/_components/wizard-steps/wizard-steps.tsx";
 
 const STEPS = ["Название", "Исполнитель", "Проверка"];
 
@@ -11,7 +11,7 @@ export function WizardSteps() {
   const { step, setStep } = useWizard();
 
   return (
-    <Boundary file={FILE} label="-components/wizard-steps" className="pb-3 pt-6">
+    <Boundary file={FILE} label="_components/wizard-steps" className="pb-3 pt-6">
       <ol className="flex items-center gap-2">
         {STEPS.map((label, index) => (
           <li key={label}>
